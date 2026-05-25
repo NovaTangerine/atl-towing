@@ -25,3 +25,9 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Next.js
+.next
+out
+build
+.env*.local
