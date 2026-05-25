@@ -1,0 +1,76 @@
+-- 1. Enforce the Happy Path States
+-- This prevents the UI or an API from accidentally setting an invalid status
+CREATE TYPE job_status AS ENUM (
+  'UNASSIGNED', 
+  'DISPATCHED', 
+  'EN_ROUTE', 
+  'ON_SCENE', 
+  'IN_TRANSIT', 
+  'COMPLETED',
+  'CANCELED'
+);
+
+CREATE TYPE photo_phase AS ENUM (
+  'PRE_TOW',
+  'POST_TOW'
+);
+
+-- 2. Core Dispatch Ticket
+CREATE TABLE tow_jobs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  -- Assuming you are using Supabase Auth, these link to the users table
+  customer_id UUID REFERENCES auth.users(id), 
+  driver_id UUID REFERENCES auth.users(id),
+  
+  status job_status DEFAULT 'UNASSIGNED',
+  
+  -- JSONB is perfect here so you don't need separate columns for street, city, zip
+  pickup_location JSONB NOT NULL,  -- e.g., {"lat": 33.749, "lng": -84.388, "address": "..."}
+  dropoff_location JSONB NOT NULL,
+  
+  -- Flexible payload for whatever the customer inputs
+  vehicle_details JSONB,           -- e.g., {"make": "Honda", "model": "Civic", "color": "Red"}
+  
+  total_cost NUMERIC(10, 2),
+  
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 3. Liability Documentation (Photos)
+CREATE TABLE job_photos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  job_id UUID REFERENCES tow_jobs(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES auth.users(id),
+  
+  phase photo_phase NOT NULL,
+  storage_path TEXT NOT NULL,      -- e.g., 'liability-photos/job_123/pre_tow_1.jpg'
+  
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 4. High-Frequency Tracking (The "Rideshare" map experience)
+CREATE TABLE job_telemetry (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  job_id UUID REFERENCES tow_jobs(id) ON DELETE CASCADE,
+  driver_id UUID REFERENCES auth.users(id),
+  
+  -- Storing heading and speed helps the frontend map marker rotate and animate smoothly
+  location JSONB NOT NULL,         -- e.g., {"lat": 33.751, "lng": -84.390, "heading": 180, "speed": 45}
+  
+  recorded_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 5. Auto-update the updated_at timestamp on the jobs table
+-- This is critical for cache invalidation and UI reactivity
+CREATE OR REPLACE FUNCTION update_modified_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_tow_jobs_modtime
+BEFORE UPDATE ON tow_jobs
+FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
