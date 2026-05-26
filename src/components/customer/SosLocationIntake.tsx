@@ -4,7 +4,11 @@ import React, { useState } from 'react';
 import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function SosLocationIntake() {
+interface SosLocationIntakeProps {
+  onNext: () => void;
+}
+
+export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
@@ -21,8 +25,8 @@ export default function SosLocationIntake() {
       // Mock transition to next step after a moment
       setTimeout(() => {
         setIsSuccess(false);
-        // Prepare to transition here
-      }, 3000);
+        onNext();
+      }, 1500);
     }, 1000);
   };
 
