@@ -122,6 +122,9 @@ export default function InteractiveMap({
     });
 
     return () => {
+      // Clean up all markers to prevent orphaned DOM nodes on re-mount
+      Object.values(markersRef.current).forEach(m => m.remove());
+      markersRef.current = {};
       map.remove();
     };
   }, []); // Note: mapbox-gl initialization is meant to happen once.
