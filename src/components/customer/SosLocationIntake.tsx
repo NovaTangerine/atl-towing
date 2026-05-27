@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import InteractiveMap from '@/components/ui/InteractiveMap';
 
 interface SosLocationIntakeProps {
   onNext: () => void;
@@ -11,16 +12,16 @@ interface SosLocationIntakeProps {
 export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+  const [coordinates, setCoordinates] = useState<[number, number]>([33.7089, -84.3800]);
 
   const handleSendHelp = () => {
+    if (!coordinates) return;
     setIsLoading(true);
     // Simulate network request to lock coordinates
     setTimeout(() => {
-      setCoordinates([33.7490, -84.3880]); // Mock Atlanta coordinates
       setIsLoading(false);
       setIsSuccess(true);
-      console.log("Coordinates locked:", [33.7490, -84.3880]);
+      console.log("Coordinates locked:", coordinates);
       
       // Mock transition to next step after a moment
       setTimeout(() => {
@@ -32,21 +33,14 @@ export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
 
   return (
     <div className="relative flex h-[100dvh] w-full flex-col bg-zinc-950 overflow-hidden text-zinc-50 dark">
-      {/* Mock Map Background - High contrast dark map placeholder */}
-      <div 
-        className="absolute inset-0 z-0 opacity-30 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234b5563' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}
-      />
-      
-      {/* Subtle Map Lines (Roads) */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <path d="M 0 200 Q 200 150 400 300 T 800 200" stroke="#374151" strokeWidth="6" fill="none" />
-          <path d="M 100 0 C 150 200 250 400 300 800" stroke="#1f2937" strokeWidth="8" fill="none" />
-          <path d="M 0 500 Q 300 450 600 600" stroke="#4b5563" strokeWidth="4" fill="none" strokeDasharray="8 8" />
-        </svg>
+      {/* Real Map Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
+        <InteractiveMap 
+          center={[-84.3800, 33.7089]}
+          zoom={15}
+          onCenterChange={(lng, lat) => setCoordinates([lat, lng])}
+        />
       </div>
 
       {/* Success Toast */}

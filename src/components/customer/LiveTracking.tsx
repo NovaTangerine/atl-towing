@@ -10,26 +10,56 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import InteractiveMap from '@/components/ui/InteractiveMap';
 
 export default function LiveTracking() {
   return (
     <div className="relative flex h-[100dvh] w-full flex-col bg-zinc-950 overflow-hidden text-zinc-50 dark">
-      {/* Mock Map Background - High contrast dark map placeholder */}
-      <div 
-        className="absolute inset-0 z-0 opacity-40 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234b5563' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}
-      />
-      
-      {/* Subtle Map Routing Line */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-60">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          {/* Mock Road */}
-          <path d="M 50 150 C 200 150 250 400 200 600" stroke="#1f2937" strokeWidth="12" fill="none" strokeLinecap="round" />
-          {/* Active Route highlighting */}
-          <path d="M 50 150 C 120 150 150 200 180 320" stroke="var(--primary)" strokeWidth="6" fill="none" strokeLinecap="round" className="drop-shadow-[0_0_10px_rgba(var(--primary),0.8)]" />
-        </svg>
+      {/* Mapbox Live Map */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-zinc-950/20 z-10 pointer-events-none" />
+        <InteractiveMap
+          center={[-84.3850, 33.7120]}
+          zoom={14}
+          fitBounds={true}
+          interactive={false}
+          routePath={[
+            [-84.3830, 33.7090],
+            [-84.3850, 33.7120],
+            [-84.3881, 33.7150]
+          ]}
+          markers={[
+            {
+              id: 'driver',
+              lng: -84.3830,
+              lat: 33.7090,
+              element: (
+                <div className="relative animate-bounce" style={{ animationDuration: '3s' }}>
+                  <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                  <div className="bg-zinc-900 border-2 border-primary p-3 rounded-full shadow-xl shadow-primary/30 relative z-10">
+                    <Truck className="w-6 h-6 text-primary" />
+                  </div>
+                  {/* Truck shadow */}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-2 bg-black/60 blur-[3px] rounded-full" />
+                </div>
+              )
+            },
+            {
+              id: 'customer',
+              lng: -84.3881,
+              lat: 33.7150,
+              element: (
+                <div className="relative">
+                  <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full -left-4 -top-4 animate-ping" style={{ animationDuration: '3s' }} />
+                  <div className="text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <MapPin className="w-10 h-10 fill-blue-500/20 stroke-2" />
+                  </div>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/50 blur-[2px] rounded-full" />
+                </div>
+              )
+            }
+          ]}
+        />
       </div>
 
       {/* Top Floating Status Banner */}
@@ -49,32 +79,8 @@ export default function LiveTracking() {
         </div>
       </div>
 
-      {/* Map Pins Area */}
       <div className="relative z-10 flex-1 pointer-events-none">
-        
-        {/* Driver Truck Pin */}
-        <div className="absolute top-[30%] left-[25%] -translate-x-1/2 -translate-y-1/2 animate-bounce" style={{ animationDuration: '3s' }}>
-          <div className="relative">
-            <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse" />
-            <div className="bg-zinc-900 border-2 border-primary p-3 rounded-full shadow-xl shadow-primary/30 relative z-10">
-              <Truck className="w-8 h-8 text-primary" />
-            </div>
-            {/* Truck shadow */}
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-8 h-2 bg-black/60 blur-[3px] rounded-full" />
-          </div>
-        </div>
-
-        {/* User Location Pin */}
-        <div className="absolute top-[55%] left-[50%] -translate-x-1/2 -translate-y-1/2">
-          <div className="relative">
-            <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full -left-4 -top-4 animate-ping" style={{ animationDuration: '3s' }} />
-            <div className="text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
-              <MapPin className="w-10 h-10 fill-blue-500/20 stroke-2" />
-            </div>
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-1 bg-black/50 blur-[2px] rounded-full" />
-          </div>
-        </div>
-
+        {/* Spacer for map layout since we moved pins directly into InteractiveMap */}
       </div>
 
       {/* Bottom Driver Sheet */}

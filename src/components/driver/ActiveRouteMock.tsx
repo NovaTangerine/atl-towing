@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { CornerUpRight, Phone, Navigation2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SwipeToConfirm from '@/components/ui/SwipeToConfirm';
+import InteractiveMap from '@/components/ui/InteractiveMap';
 
 interface ActiveRouteMockProps {
   onArrive?: () => void;
@@ -25,35 +26,36 @@ export default function ActiveRouteMock({
 
   return (
     <div className="relative flex flex-col h-[100dvh] w-full bg-[#0a0a0c] text-zinc-50 overflow-hidden dark">
-      {/* --- Z-INDEX 0: Simulated Map Background --- */}
-      <div className="absolute inset-0 z-0 flex flex-col items-center justify-end pb-32">
-        {/* Abstract Dark Grid */}
-        <div className="absolute inset-0 opacity-10" style={{ 
-          backgroundImage: `
-            linear-gradient(to right, #3f3f46 1px, transparent 1px),
-            linear-gradient(to bottom, #3f3f46 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-          transform: 'perspective(500px) rotateX(60deg) scale(2) translateY(-100px)'
-        }} />
-        
-        {/* Glowing SVG Route Path */}
-        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-          {/* Base path glow */}
-          <path d="M 50,800 C 100,500 300,400 200,100" stroke="#3b82f6" strokeWidth="20" strokeLinecap="round" fill="none" opacity="0.2" className="animate-pulse" />
-          {/* Core path */}
-          <path d="M 50,800 C 100,500 300,400 200,100" stroke="#60a5fa" strokeWidth="8" strokeLinecap="round" fill="none" />
-        </svg>
-
-        {/* 3D Navigation Arrow Locked to bottom-center of the "map" */}
-        <div className="relative z-10 w-20 h-20 mb-20">
-          <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-50" />
-          <Navigation2 className="w-full h-full text-white drop-shadow-2xl filter" style={{ transform: 'perspective(200px) rotateX(45deg)' }} />
-        </div>
+      {/* --- Z-INDEX 0: Real Mapbox Background --- */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 bg-zinc-950/20 z-10 pointer-events-none" />
+        <InteractiveMap
+          center={[-84.3830, 33.7090]} // Driver's current position
+          zoom={16}
+          interactive={true}
+          routePath={[
+            [-84.3830, 33.7090], // Current
+            [-84.3850, 33.7120], // Waypoint
+            [-84.3881, 33.7150]  // Customer
+          ]}
+          markers={[
+            {
+              id: 'navigation-arrow',
+              lng: -84.3830,
+              lat: 33.7090,
+              element: (
+                <div className="relative z-10 w-20 h-20 -mt-10">
+                  <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-50 animate-pulse" />
+                  <Navigation2 className="w-full h-full text-white drop-shadow-2xl filter" style={{ transform: 'rotate(25deg)' }} />
+                </div>
+              )
+            }
+          ]}
+        />
       </div>
 
       {/* --- Z-INDEX 10: Turn-by-Turn Header --- */}
-      <div className="relative z-10 w-full bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800 p-6 flex items-center gap-6 shadow-2xl">
+      <div className="relative z-10 w-full bg-zinc-950/90 backdrop-blur-xl border-b border-zinc-800 p-6 flex items-center gap-6 shadow-2xl pointer-events-none">
         <div className="flex-shrink-0 p-4 bg-zinc-800 rounded-2xl">
           <CornerUpRight className="w-12 h-12 text-white" strokeWidth={3} />
         </div>
@@ -68,7 +70,7 @@ export default function ActiveRouteMock({
       </div>
 
       {/* --- Z-INDEX 10: Floating Metrics Bar --- */}
-      <div className="relative z-10 w-full px-4 pt-4">
+      <div className="relative z-10 w-full px-4 pt-4 pointer-events-none">
         <div className="flex items-center justify-between bg-zinc-900/80 backdrop-blur-md border border-zinc-800 rounded-2xl p-4 shadow-lg">
           <div className="text-center flex-1 border-r border-zinc-800">
             <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest">ETA</div>
@@ -86,7 +88,7 @@ export default function ActiveRouteMock({
       </div>
 
       {/* --- Z-INDEX 10: Sticky Quick-Action Footer --- */}
-      <div className="relative z-10 mt-auto w-full bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c] to-transparent pt-12 pb-8 px-6">
+      <div className="relative z-10 mt-auto w-full bg-gradient-to-t from-[#0a0a0c] via-[#0a0a0c] to-transparent pt-12 pb-8 px-6 pointer-events-auto">
         
         {/* Mock Notification Toast */}
         {isCalling && (
