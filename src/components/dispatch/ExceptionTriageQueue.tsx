@@ -6,21 +6,12 @@ import { AlertOctagon, AlertTriangle, Phone, Send, UserX } from 'lucide-react';
 const MOCK_EXCEPTIONS = [
   {
     id: 'EX-901',
-    jobId: 'ATL-4088',
-    driver: 'Marcus D.',
+    jobId: 'ATL-4093',
+    driver: 'Oscar O.',
     type: 'critical',
-    title: 'SLA Breach: Stuck on Scene',
-    details: 'Driver arrived 42 mins ago. No photos uploaded.',
-    duration: 2520, // 42 mins in seconds
-  },
-  {
-    id: 'EX-902',
-    jobId: 'ATL-4091',
-    driver: 'Frank T.',
-    type: 'warning',
-    title: 'ETA Slipping',
-    details: 'Driver velocity < 15mph for 10 mins. Heavy traffic on I-85.',
-    duration: 600, // 10 mins
+    title: 'ETA Exceeded: +15 mins',
+    details: 'Driver stuck in amphitheater traffic. Status un-updated.',
+    duration: 900, // 15 mins in seconds
   }
 ];
 

@@ -40,7 +40,7 @@ export default function DriverView() {
       <ActiveRouteMock 
         onArrive={() => setStatus('dropoff')} 
         primaryInstruction="Arrive at"
-        secondaryInstruction="City Impound Lot"
+        secondaryInstruction="Southside Auto & Tire"
       />
     );
   }

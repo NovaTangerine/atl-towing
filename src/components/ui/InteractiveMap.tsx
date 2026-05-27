@@ -21,6 +21,7 @@ export interface InteractiveMapProps {
   onCenterChange?: (lng: number, lat: number) => void;
   routePath?: [number, number][];
   fitBounds?: boolean;
+  bounds?: [[number, number], [number, number]];
   className?: string;
 }
 
@@ -32,6 +33,7 @@ export default function InteractiveMap({
   onCenterChange,
   routePath,
   fitBounds = false,
+  bounds,
   className = "w-full h-full"
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -55,6 +57,8 @@ export default function InteractiveMap({
       center: center,
       zoom: zoom,
       interactive: interactive,
+      bounds: bounds, // Apply explicit bounds if provided
+      fitBoundsOptions: bounds ? { padding: 40 } : undefined
     });
 
     const map = mapRef.current;

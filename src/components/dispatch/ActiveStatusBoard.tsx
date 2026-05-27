@@ -4,11 +4,11 @@ import React from 'react';
 import { Search, Filter, Truck } from 'lucide-react';
 
 const MOCK_JOBS = [
-  { id: 'ATL-4091', customer: 'Sarah Jenkins', driver: 'Frank T.', status: 'en_route', eta: '12m', loc: 'I-85 N' },
-  { id: 'ATL-4092', customer: 'Carl (B2B)', driver: 'Oscar O.', status: 'on_scene', eta: '--', loc: 'Downtown' },
-  { id: 'ATL-4093', customer: 'Marcus V.', driver: 'David S.', status: 'in_transit', eta: '4m', loc: 'Midtown' },
-  { id: 'ATL-4094', customer: 'APD Impound', driver: 'Unassigned', status: 'pending', eta: '--', loc: 'Buckhead' },
-  { id: 'ATL-4095', customer: 'Elena R.', driver: 'Marcus D.', status: 'en_route', eta: '22m', loc: 'I-285 W' },
+  { id: 'ATL-4091', customer: 'Sarah M.', driver: 'Frank T.', status: 'en_route', eta: '4m', loc: 'I-75/85 SB' },
+  { id: 'ATL-4092', customer: 'B2B Brian', driver: 'Unassigned', status: 'pending', eta: '--', loc: 'The Beacon' },
+  { id: 'ATL-4093', customer: 'Event Traffic', driver: 'Oscar O.', status: 'exception', eta: '+15m', loc: 'Lakewood Amp' },
+  { id: 'ATL-4094', customer: 'Fender Bender', driver: 'Marcus', status: 'in_transit', eta: '8m', loc: 'Moreland Ave' },
+  { id: 'ATL-4095', customer: 'Roadside Assist', driver: 'David', status: 'on_scene', eta: '--', loc: 'Brownsmill Golf' },
 ];
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -17,6 +17,7 @@ const StatusBadge = ({ status }: { status: string }) => {
     case 'on_scene': return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">On Scene</span>;
     case 'in_transit': return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/20 text-green-400 border border-green-500/30">In Transit</span>;
     case 'pending': return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">Pending</span>;
+    case 'exception': return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30">Exception</span>;
     default: return <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-zinc-500/20 text-zinc-400 border border-zinc-500/30">{status}</span>;
   }
 };

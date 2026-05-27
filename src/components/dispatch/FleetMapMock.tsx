@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Truck, AlertTriangle } from 'lucide-react';
+import { Truck, AlertTriangle, CarFront } from 'lucide-react';
 import InteractiveMap from '@/components/ui/InteractiveMap';
 
 export default function FleetMapMock() {
@@ -11,15 +11,13 @@ export default function FleetMapMock() {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-blue-900/5 z-10 pointer-events-none" />
         <InteractiveMap
-          center={[-84.3800, 33.7089]} // South Atlanta 30315 footprint
-          zoom={13}
+          bounds={[[-84.40, 33.67], [-84.34, 33.73]]}
           interactive={true}
-          fitBounds={true}
           markers={[
             {
               id: 'frank-truck',
-              lng: -84.3830,
-              lat: 33.7090,
+              lng: -84.3934,
+              lat: 33.7042,
               element: (
                 <div className="flex flex-col items-center group cursor-pointer -mt-4">
                   <div className="relative">
@@ -38,27 +36,27 @@ export default function FleetMapMock() {
             },
             {
               id: 'oscar-truck',
-              lng: -84.3650,
-              lat: 33.7250,
+              lng: -84.3879,
+              lat: 33.7012,
               element: (
                 <div className="flex flex-col items-center group cursor-pointer -mt-4">
                   <div className="relative">
-                    <div className="absolute -inset-4 border-2 border-purple-500 rounded-full animate-ping opacity-20" style={{ animationDelay: '1s' }} />
-                    <div className="w-8 h-8 bg-purple-600 rounded-full border-2 border-zinc-950 flex items-center justify-center shadow-lg relative z-10 group-hover:scale-110 transition-transform">
+                    <div className="absolute -inset-4 border-2 border-red-500 rounded-full animate-ping opacity-20" style={{ animationDelay: '1s' }} />
+                    <div className="w-8 h-8 bg-red-600 rounded-full border-2 border-zinc-950 flex items-center justify-center shadow-lg relative z-10 group-hover:scale-110 transition-transform">
                       <Truck className="w-4 h-4 text-white" />
                     </div>
                   </div>
                   <div className="mt-2 bg-zinc-900/90 backdrop-blur border border-zinc-700 px-2 py-1 rounded text-[10px] font-bold text-white shadow-xl whitespace-nowrap">
-                    Oscar O. <span className="text-purple-400">Stopped</span>
+                    Oscar O. <span className="text-red-400">Exception</span>
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">Oscar O.</h3><p class="text-sm text-zinc-400">On Scene</p></div>`
+              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold text-red-400">Oscar O.</h3><p class="text-sm text-zinc-400">Exception: Traffic Delay</p></div>`
             },
             {
               id: 'pending-job',
-              lng: -84.3720,
-              lat: 33.6950,
+              lng: -84.3712,
+              lat: 33.7259,
               element: (
                 <div className="flex flex-col items-center group cursor-pointer -mt-4">
                   <div className="relative">
@@ -68,11 +66,68 @@ export default function FleetMapMock() {
                     </div>
                   </div>
                   <div className="mt-2 bg-amber-500/10 backdrop-blur border border-amber-500/30 px-2 py-1 rounded text-[10px] font-bold text-amber-500 shadow-xl whitespace-nowrap">
-                    Pending: APD Impound
+                    Pending: The Beacon
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-amber-900 text-white rounded"><h3 class="font-bold">Urgent Dispatch</h3><p class="text-sm text-amber-400">Unassigned</p></div>`
+              popupContent: `<div class="p-2 bg-amber-900 text-white rounded"><h3 class="font-bold">B2B Request</h3><p class="text-sm text-amber-400">The Beacon Impound</p></div>`
+            },
+            {
+              id: 'sarah-car',
+              lng: -84.3985,
+              lat: 33.7188,
+              element: (
+                <div className="flex flex-col items-center group cursor-pointer -mt-4">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-blue-500 rounded-full animate-pulse opacity-20" />
+                    <div className="w-6 h-6 bg-zinc-800 rounded-full border border-blue-500 flex items-center justify-center shadow-lg relative z-10 group-hover:scale-110 transition-transform">
+                      <CarFront className="w-3 h-3 text-zinc-300" />
+                    </div>
+                  </div>
+                  <div className="mt-1 bg-zinc-900/90 backdrop-blur border border-zinc-700 px-1.5 py-0.5 rounded text-[9px] font-bold text-zinc-400 shadow-xl whitespace-nowrap">
+                    Sarah M.
+                  </div>
+                </div>
+              ),
+              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2019 Toyota RAV4</h3><p class="text-sm text-zinc-400">Waiting for Frank T.</p></div>`
+            },
+            {
+              id: 'fender-bender-car',
+              lng: -84.3491,
+              lat: 33.7061,
+              element: (
+                <div className="flex flex-col items-center group cursor-pointer -mt-4">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-green-500 rounded-full animate-pulse opacity-20" />
+                    <div className="w-6 h-6 bg-zinc-800 rounded-full border border-green-500 flex items-center justify-center shadow-lg relative z-10 group-hover:scale-110 transition-transform">
+                      <CarFront className="w-3 h-3 text-zinc-300" />
+                    </div>
+                  </div>
+                  <div className="mt-1 bg-zinc-900/90 backdrop-blur border border-zinc-700 px-1.5 py-0.5 rounded text-[9px] font-bold text-zinc-400 shadow-xl whitespace-nowrap">
+                    Fender Bender
+                  </div>
+                </div>
+              ),
+              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2018 Nissan Altima</h3><p class="text-sm text-zinc-400">In Transit with Marcus</p></div>`
+            },
+            {
+              id: 'roadside-car',
+              lng: -84.3768,
+              lat: 33.6795,
+              element: (
+                <div className="flex flex-col items-center group cursor-pointer -mt-4">
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-purple-500 rounded-full animate-pulse opacity-20" />
+                    <div className="w-6 h-6 bg-zinc-800 rounded-full border border-purple-500 flex items-center justify-center shadow-lg relative z-10 group-hover:scale-110 transition-transform">
+                      <CarFront className="w-3 h-3 text-zinc-300" />
+                    </div>
+                  </div>
+                  <div className="mt-1 bg-zinc-900/90 backdrop-blur border border-zinc-700 px-1.5 py-0.5 rounded text-[9px] font-bold text-zinc-400 shadow-xl whitespace-nowrap">
+                    Roadside Assist
+                  </div>
+                </div>
+              ),
+              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2022 Chevy Malibu</h3><p class="text-sm text-zinc-400">David on scene</p></div>`
             }
           ]}
         />

@@ -57,8 +57,8 @@ export default function JobOfferPing({ onAccept, onDecline }: JobOfferPingProps)
           <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
             <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-col items-center justify-center">
               <Navigation className="w-8 h-8 text-amber-500 mb-2" />
-              <div className="text-2xl font-bold text-white">4.2 <span className="text-sm text-zinc-400">mi</span></div>
-              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">12 min Away</div>
+              <div className="text-2xl font-bold text-white">1.5 <span className="text-sm text-zinc-400">mi</span></div>
+              <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mt-1">4 min Away</div>
             </div>
             
             <div className="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 flex flex-col items-center justify-center">
@@ -73,9 +73,9 @@ export default function JobOfferPing({ onAccept, onDecline }: JobOfferPingProps)
               <CarFront className="w-8 h-8 text-zinc-300" />
             </div>
             <div>
-              <div className="text-lg font-bold text-white">2019 Ford F-150</div>
+              <div className="text-lg font-bold text-white">2019 Toyota RAV4</div>
               <div className="text-sm font-bold text-red-400 flex items-center gap-1">
-                <ShieldAlert className="w-4 h-4" /> Accident (Drivetrain locked)
+                <ShieldAlert className="w-4 h-4" /> Blown tire (Shoulder of I-75)
               </div>
             </div>
           </div>

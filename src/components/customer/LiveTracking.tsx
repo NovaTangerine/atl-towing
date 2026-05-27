@@ -19,20 +19,27 @@ export default function LiveTracking() {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-zinc-950/20 z-10 pointer-events-none" />
         <InteractiveMap
-          center={[-84.3850, 33.7120]}
+          center={[-84.3960, 33.7115]}
           zoom={14}
           fitBounds={true}
           interactive={false}
           routePath={[
-            [-84.3830, 33.7090],
-            [-84.3850, 33.7120],
-            [-84.3881, 33.7150]
+            [-84.3934, 33.7042],
+            [-84.3935, 33.7065],
+            [-84.3936, 33.7090],
+            [-84.3937, 33.7115],
+            [-84.3938, 33.7145],
+            [-84.3950, 33.7147],
+            [-84.3965, 33.7148],
+            [-84.3975, 33.7155],
+            [-84.3980, 33.7170],
+            [-84.3985, 33.7188]
           ]}
           markers={[
             {
               id: 'driver',
-              lng: -84.3830,
-              lat: 33.7090,
+              lng: -84.3934,
+              lat: 33.7042,
               element: (
                 <div className="relative animate-bounce" style={{ animationDuration: '3s' }}>
                   <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse" />
@@ -46,8 +53,8 @@ export default function LiveTracking() {
             },
             {
               id: 'customer',
-              lng: -84.3881,
-              lat: 33.7150,
+              lng: -84.3985,
+              lat: 33.7188,
               element: (
                 <div className="relative">
                   <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full -left-4 -top-4 animate-ping" style={{ animationDuration: '3s' }} />
@@ -68,7 +75,7 @@ export default function LiveTracking() {
           <div className="flex items-center justify-center bg-primary/20 text-primary w-12 h-12 rounded-full relative">
             {/* Pulsing ring for live status */}
             <div className="absolute inset-0 rounded-full border-2 border-primary animate-ping opacity-50" style={{ animationDuration: '2s' }} />
-            <span className="font-black tracking-tighter text-xl leading-none">12<span className="text-[10px] uppercase ml-0.5 opacity-80 block text-center -mt-1 tracking-wider">min</span></span>
+            <span className="font-black tracking-tighter text-xl leading-none">4<span className="text-[10px] uppercase ml-0.5 opacity-80 block text-center -mt-1 tracking-wider">min</span></span>
           </div>
           <div className="flex flex-col">
             <span className="text-zinc-50 font-bold text-lg leading-tight tracking-tight">Help is on the way</span>

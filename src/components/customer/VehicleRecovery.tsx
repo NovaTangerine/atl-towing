@@ -138,8 +138,8 @@ export default function VehicleRecovery({ onBack }: VehicleRecoveryProps) {
             <div className="bg-zinc-900 border-l-4 border-l-red-500 border-y border-r border-zinc-800 rounded-r-2xl p-5 mb-8">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-black tracking-tight text-white mb-1">2019 Honda Civic</h2>
-                  <p className="text-zinc-400 font-medium">Silver • Plate: {searchValue || 'ATL-8492'}</p>
+                  <h2 className="text-2xl font-black tracking-tight text-white mb-1">2015 Honda Civic</h2>
+                  <p className="text-zinc-400 font-medium">Black • Plate: {searchValue || 'ATL-8492'}</p>
                 </div>
                 <div className="bg-zinc-950 p-3 rounded-full border border-zinc-800">
                   <CarFront className="w-6 h-6 text-zinc-400" />
@@ -150,8 +150,8 @@ export default function VehicleRecovery({ onBack }: VehicleRecoveryProps) {
                 <div className="flex gap-3 text-sm">
                   <MapPin className="w-5 h-5 text-red-500 shrink-0" />
                   <div>
-                    <span className="font-bold text-zinc-300 block">Southside Impound Lot</span>
-                    <span className="text-zinc-500">1400 Towing Blvd, Atlanta, GA 30315</span>
+                    <span className="font-bold text-zinc-300 block">ATL Towing Main Impound Lot</span>
+                    <span className="text-zinc-500">1800 Jonesboro Rd SE, Atlanta, GA 30315</span>
                   </div>
                 </div>
                 <div className="flex gap-3 text-sm">
@@ -175,9 +175,9 @@ export default function VehicleRecovery({ onBack }: VehicleRecoveryProps) {
                 <div className="flex justify-between items-center pb-4 border-b border-zinc-800/80">
                   <div>
                     <span className="text-zinc-400 block">Storage Fee</span>
-                    <span className="text-xs text-zinc-600">2 Days @ $35.00/day</span>
+                    <span className="text-xs text-zinc-600">3 Days @ $25.00/day</span>
                   </div>
-                  <span className="text-zinc-100">$70.00</span>
+                  <span className="text-zinc-100">$75.00</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-zinc-800/80">
                   <span className="text-zinc-400">City Administrative Fee</span>
@@ -186,7 +186,7 @@ export default function VehicleRecovery({ onBack }: VehicleRecoveryProps) {
                 
                 <div className="flex justify-between items-end pt-2">
                   <span className="text-lg font-bold text-zinc-100">Total Due</span>
-                  <span className="text-4xl font-black text-red-500">$245.00</span>
+                  <span className="text-4xl font-black text-red-500">$250.00</span>
                 </div>
               </div>
             </div>

@@ -30,19 +30,26 @@ export default function ActiveRouteMock({
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-zinc-950/20 z-10 pointer-events-none" />
         <InteractiveMap
-          center={[-84.3830, 33.7090]} // Driver's current position
+          center={[-84.3934, 33.7042]} // Driver's current position
           zoom={16}
           interactive={true}
           routePath={[
-            [-84.3830, 33.7090], // Current
-            [-84.3850, 33.7120], // Waypoint
-            [-84.3881, 33.7150]  // Customer
+            [-84.3934, 33.7042],
+            [-84.3935, 33.7065],
+            [-84.3936, 33.7090],
+            [-84.3937, 33.7115],
+            [-84.3938, 33.7145],
+            [-84.3950, 33.7147],
+            [-84.3965, 33.7148],
+            [-84.3975, 33.7155],
+            [-84.3980, 33.7170],
+            [-84.3985, 33.7188]
           ]}
           markers={[
             {
               id: 'navigation-arrow',
-              lng: -84.3830,
-              lat: 33.7090,
+              lng: -84.3934,
+              lat: 33.7042,
               element: (
                 <div className="relative z-10 w-20 h-20 -mt-10">
                   <div className="absolute inset-0 bg-blue-500 rounded-full blur-xl opacity-50 animate-pulse" />
@@ -78,11 +85,11 @@ export default function ActiveRouteMock({
           </div>
           <div className="text-center flex-1 border-r border-zinc-800">
             <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Time</div>
-            <div className="text-2xl font-extrabold text-green-400">12 <span className="text-sm text-green-600">min</span></div>
+            <div className="text-2xl font-extrabold text-green-400">4 <span className="text-sm text-green-600">min</span></div>
           </div>
           <div className="text-center flex-1">
             <div className="text-sm font-bold text-zinc-500 uppercase tracking-widest">Dist</div>
-            <div className="text-2xl font-extrabold text-white">4.2 <span className="text-sm text-zinc-400">mi</span></div>
+            <div className="text-2xl font-extrabold text-white">1.5 <span className="text-sm text-zinc-400">mi</span></div>
           </div>
         </div>
       </div>

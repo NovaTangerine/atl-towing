@@ -12,7 +12,7 @@ interface SosLocationIntakeProps {
 export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [coordinates, setCoordinates] = useState<[number, number]>([33.7089, -84.3800]);
+  const [coordinates, setCoordinates] = useState<[number, number]>([33.7188, -84.3985]);
 
   const handleSendHelp = () => {
     if (!coordinates) return;
@@ -37,7 +37,7 @@ export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-black/40 z-10 pointer-events-none" />
         <InteractiveMap 
-          center={[-84.3800, 33.7089]}
+          center={[-84.3985, 33.7188]}
           zoom={15}
           onCenterChange={(lng, lat) => setCoordinates([lat, lng])}
         />
