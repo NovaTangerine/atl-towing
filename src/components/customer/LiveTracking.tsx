@@ -81,7 +81,7 @@ export default function LiveTracking() {
           zoom={14}
           fitBounds={true}
           fitRouteToBounds={!isAnimating && !isApproaching}
-          fitBoundsPadding={{ top: 120, bottom: 380, left: 40, right: 40 }}
+          fitBoundsPadding={{ top: 180, bottom: 380, left: 40, right: 40 }}
           interactive={false}
           routePath={ROUTE_PATH as any}
           markers={[
@@ -120,23 +120,46 @@ export default function LiveTracking() {
 
       {/* Top Floating Status Banner */}
       <div className="absolute top-10 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none">
-        <div className={`flex items-center gap-4 bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 p-3 pr-6 rounded-full shadow-2xl animate-in slide-in-from-top-10 fade-in duration-500 transition-colors ${isApproaching ? 'border-amber-500/50 shadow-amber-500/20' : 'shadow-black/50'}`}>
-          <div className={`flex items-center justify-center w-12 h-12 rounded-full relative ${isApproaching ? 'bg-amber-500/20 text-amber-500' : 'bg-primary/20 text-primary'}`}>
+        <div className={`flex items-center transition-all duration-500 ${
+          isApproaching 
+            ? 'w-full max-w-md gap-4 p-4 bg-amber-500 shadow-[0_10px_40px_-10px_rgba(245,158,11,0.6)] rounded-full border border-transparent' 
+            : 'gap-4 bg-zinc-900/90 backdrop-blur-xl border border-zinc-800 p-3 pr-6 rounded-full shadow-2xl shadow-black/50'
+        }`}>
+          
+          <div className={`flex items-center justify-center shrink-0 rounded-full relative transition-all duration-500 ${
+            isApproaching ? 'w-14 h-14 bg-amber-950/20 text-amber-950' : 'w-12 h-12 bg-primary/20 text-primary'
+          }`}>
             {/* Pulsing ring for live status */}
-            <div className={`absolute inset-0 rounded-full border-2 animate-ping opacity-50 ${isApproaching ? 'border-amber-500' : 'border-primary'}`} style={{ animationDuration: isApproaching ? '1s' : '2s' }} />
+            <div className={`absolute inset-0 rounded-full border-2 animate-ping opacity-50 ${
+              isApproaching ? 'border-amber-950' : 'border-primary'
+            }`} style={{ animationDuration: isApproaching ? '1s' : '2s' }} />
             
             {isApproaching ? (
-              <span className="font-black tracking-tighter text-xl leading-none">&lt;1<span className="text-[10px] uppercase ml-0.5 opacity-80 block text-center -mt-1 tracking-wider">min</span></span>
+              <div className="flex flex-col items-center justify-center leading-none -translate-y-[2px]">
+                <span className="font-black tracking-tighter text-2xl">1</span>
+                <span className="text-[10px] font-bold uppercase opacity-80 tracking-widest -mt-1">min</span>
+              </div>
             ) : (
-              <span className="font-black tracking-tighter text-xl leading-none">4<span className="text-[10px] uppercase ml-0.5 opacity-80 block text-center -mt-1 tracking-wider">min</span></span>
+              <div className="flex flex-col items-center justify-center leading-none -translate-y-[2px]">
+                <span className="font-black tracking-tighter text-xl">4</span>
+                <span className="text-[10px] font-bold uppercase opacity-80 tracking-widest -mt-0.5">min</span>
+              </div>
             )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-zinc-50 font-bold text-lg leading-tight tracking-tight">
-              {isApproaching ? 'Arriving Now' : 'Help is on the way'}
+          
+          <div className={`flex flex-col ${isApproaching ? 'justify-center min-h-[3rem]' : ''}`}>
+            <span className={`leading-tight tracking-tight ${
+              isApproaching ? 'font-extrabold text-lg mb-1 text-amber-950' : 'font-bold text-lg text-zinc-50'
+            }`}>
+              {isApproaching ? 'Driver is Arriving' : 'Help is on the way'}
             </span>
-            <span className="text-zinc-400 text-xs font-medium flex items-center gap-1">
-              <ShieldCheck className={`w-3 h-3 ${isApproaching ? 'text-amber-500' : 'text-primary'}`} /> Driver Frank Dispatched
+            <span className={`leading-tight flex ${
+              isApproaching ? 'items-start gap-1 text-amber-900 font-bold text-sm' : 'items-center gap-1 text-zinc-400 font-medium text-xs'
+            }`}>
+              {!isApproaching && <ShieldCheck className="w-3 h-3 text-primary shrink-0" />}
+              {isApproaching 
+                ? 'Please head to your vehicle immediately. Frank is pulling up now.'
+                : 'Driver Frank Dispatched'}
             </span>
           </div>
         </div>
@@ -147,24 +170,7 @@ export default function LiveTracking() {
       {/* Bottom Driver Sheet */}
       <div className="relative z-50 animate-in slide-in-from-bottom-full duration-700">
         
-        {/* Approaching Toast overlaying the sheet */}
-        {isApproaching && (
-          <div className="absolute -top-[5.5rem] left-4 right-4 animate-in slide-in-from-bottom-8 fade-in duration-500 z-50">
-            <div className="bg-amber-500 rounded-2xl p-4 shadow-[0_10px_40px_-10px_rgba(245,158,11,0.6)] flex items-start gap-4 cursor-default">
-              <div className="bg-amber-950/20 p-2 rounded-full mt-0.5 shrink-0 animate-pulse">
-                <AlertTriangle className="w-6 h-6 text-amber-950" strokeWidth={3} />
-              </div>
-              <div>
-                <h3 className="text-amber-950 font-extrabold text-lg tracking-tight leading-tight mb-1">
-                  Driver is Arriving
-                </h3>
-                <p className="text-amber-900 font-bold text-sm leading-tight">
-                  Please head to your vehicle immediately. Frank is pulling up now.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Approaching Toast removed - logic merged into Top Banner */}
 
         <div className="bg-zinc-900 border-t border-zinc-800 shadow-[0_-20px_50px_-10px_rgba(0,0,0,0.5)] rounded-t-[2.5rem] pt-3 px-6 pb-8">
           {/* Drag handle pill */}
