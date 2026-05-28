@@ -21,6 +21,8 @@ export interface InteractiveMapProps {
   onCenterChange?: (lng: number, lat: number) => void;
   routePath?: [number, number][];
   fitBounds?: boolean;
+  fitBoundsPadding?: number | { top: number; bottom: number; left: number; right: number };
+  fitRouteToBounds?: boolean;
   bounds?: [[number, number], [number, number]];
   className?: string;
 }
@@ -33,6 +35,8 @@ export default function InteractiveMap({
   onCenterChange,
   routePath,
   fitBounds = false,
+  fitBoundsPadding = 60,
+  fitRouteToBounds = true,
   bounds,
   className = "w-full h-full"
 }: InteractiveMapProps) {
@@ -103,13 +107,13 @@ export default function InteractiveMap({
           hasBounds = true;
         }
         
-        if (routePath && routePath.length > 0) {
+        if (fitRouteToBounds && routePath && routePath.length > 0) {
           routePath.forEach(p => bounds.extend([p[0], p[1]]));
           hasBounds = true;
         }
 
         if (hasBounds) {
-          map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+          map.fitBounds(bounds, { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 });
         }
       }
     });
@@ -182,7 +186,7 @@ export default function InteractiveMap({
         hasBounds = true;
       });
       
-      if (routePath && routePath.length > 0) {
+      if (fitRouteToBounds && routePath && routePath.length > 0) {
         routePath.forEach(p => {
           bounds.extend([p[0], p[1]]);
           hasBounds = true;
@@ -190,7 +194,7 @@ export default function InteractiveMap({
       }
 
       if (hasBounds) {
-        map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+        map.fitBounds(bounds, { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 });
       }
     }
   }, [markers, fitBounds, routePath]);
