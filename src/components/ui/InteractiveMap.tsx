@@ -168,10 +168,32 @@ export default function InteractiveMap({
           m.setPopup(popup);
         }
         
+        
         markersRef.current[markerData.id] = m;
       }
     });
-  }, [markers]);
+
+    if (fitBounds) {
+      const bounds = new mapboxgl.LngLatBounds();
+      let hasBounds = false;
+      
+      markers.forEach(m => {
+        bounds.extend([m.lng, m.lat]);
+        hasBounds = true;
+      });
+      
+      if (routePath && routePath.length > 0) {
+        routePath.forEach(p => {
+          bounds.extend([p[0], p[1]]);
+          hasBounds = true;
+        });
+      }
+
+      if (hasBounds) {
+        map.fitBounds(bounds, { padding: 60, maxZoom: 16 });
+      }
+    }
+  }, [markers, fitBounds, routePath]);
 
   return (
     <div className={`relative ${className}`}>

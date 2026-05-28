@@ -26,9 +26,9 @@ export default function JobOfferPing({ onAccept, onDecline }: JobOfferPingProps)
 
   return (
     <div className="relative flex flex-col h-[100dvh] w-full bg-zinc-950 text-zinc-50 overflow-hidden dark">
-      {/* Pulsing Alert Background */}
+      {/* Pulsing Alert Background - optimized for performance */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
-        <div className="w-[150vw] h-[150vw] bg-amber-500/10 rounded-full blur-[100px] animate-pulse" style={{ animationDuration: '2s' }} />
+        <div className="w-[100vw] h-[100vw] max-w-2xl max-h-2xl bg-amber-500/10 rounded-full blur-[50px] opacity-50 animate-pulse" style={{ animationDuration: '2s' }} />
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col p-6">
