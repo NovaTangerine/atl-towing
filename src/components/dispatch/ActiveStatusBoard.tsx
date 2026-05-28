@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { Search, Filter, Truck } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Filter, Truck, Loader2 } from 'lucide-react';
 
 const MOCK_JOBS = [
   { id: 'ATL-4091', customer: 'Sarah M.', driver: 'Frank T.', status: 'en_route', eta: '4m', loc: 'I-75/85 SB' },
@@ -23,6 +23,15 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export default function ActiveStatusBoard() {
+  const [isCreatingJob, setIsCreatingJob] = useState(false);
+
+  const handleNewJob = () => {
+    setIsCreatingJob(true);
+    setTimeout(() => {
+      setIsCreatingJob(false);
+    }, 3000);
+  };
+
   return (
     <div className="flex flex-col h-full bg-zinc-950 border-r border-zinc-800 text-zinc-300 w-[500px] shrink-0">
       {/* Header & Controls */}
@@ -31,7 +40,13 @@ export default function ActiveStatusBoard() {
           <h1 className="text-xl font-extrabold text-white tracking-tight">Active Queue</h1>
           <div className="flex items-center gap-2">
             <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-zinc-800 text-zinc-400 rounded border border-zinc-700">Cmd+N</kbd>
-            <button className="text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded transition-colors">New Job</button>
+            <button 
+              onClick={handleNewJob}
+              disabled={isCreatingJob}
+              className="text-xs font-bold bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-3 py-1.5 rounded transition-colors"
+            >
+              New Job
+            </button>
           </div>
         </div>
 
@@ -100,6 +115,14 @@ export default function ActiveStatusBoard() {
            </kbd>
         </div>
       </div>
+
+      {/* Global Toast for New Job */}
+      {isCreatingJob && (
+        <div className="fixed top-8 left-1/2 -translate-x-1/2 bg-zinc-900 border border-zinc-700 text-white px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-3 animate-in slide-in-from-top-5 fade-in duration-300">
+          <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+          <span className="text-sm font-medium tracking-wide">Allocating new job block...</span>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,6 +16,15 @@ const MOCK_EXCEPTIONS = [
 ];
 
 export default function ExceptionTriageQueue() {
+  const [nudgedDrivers, setNudgedDrivers] = useState<string[]>([]);
+  
+  const handleNudge = (id: string) => {
+    setNudgedDrivers(prev => [...prev, id]);
+    setTimeout(() => {
+      setNudgedDrivers(prev => prev.filter(n => n !== id));
+    }, 3000);
+  };
+
   const [timers, setTimers] = useState<{ [key: string]: number }>(() => {
     const initial: { [key: string]: number } = {};
     MOCK_EXCEPTIONS.forEach(ex => initial[ex.id] = ex.duration);
@@ -100,10 +109,19 @@ export default function ExceptionTriageQueue() {
 
             {/* Action Buttons (Keyboard Mocked) */}
             <div className="flex flex-col gap-1.5 pl-2">
-              <button className={`flex items-center justify-between px-2 py-1.5 rounded text-xs font-bold transition-colors ${
-                ex.type === 'critical' ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-white'
-              }`}>
-                <div className="flex items-center gap-1.5"><Send className="w-3.5 h-3.5" /> Nudge Driver</div>
+              <button 
+                onClick={() => handleNudge(ex.id)}
+                disabled={nudgedDrivers.includes(ex.id)}
+                className={`flex items-center justify-between px-2 py-1.5 rounded text-xs font-bold transition-colors ${
+                  nudgedDrivers.includes(ex.id) 
+                    ? 'bg-green-600/50 text-green-200 cursor-not-allowed'
+                    : ex.type === 'critical' ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-white'
+                }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <Send className="w-3.5 h-3.5" /> 
+                  {nudgedDrivers.includes(ex.id) ? 'Nudged' : 'Nudge Driver'}
+                </div>
                 <kbd className="text-[9px] font-mono px-1 py-0.5 bg-black/30 rounded border border-white/20">Cmd+1</kbd>
               </button>
 
@@ -122,6 +140,23 @@ export default function ExceptionTriageQueue() {
           </div>
         ))}
       </div>
+
+      {/* Global Toast for Nudge Driver */}
+      {nudgedDrivers.map((id, index) => {
+        const ex = MOCK_EXCEPTIONS.find(e => e.id === id);
+        return (
+          <div 
+            key={id} 
+            className="fixed left-1/2 -translate-x-1/2 bg-zinc-900 border border-green-500/50 text-white px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-3 animate-in slide-in-from-top-5 fade-in duration-300"
+            style={{ top: `${2 + index * 4}rem` }}
+          >
+            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+            <span className="text-sm font-medium tracking-wide">
+              Priority ping sent to <span className="font-bold text-green-400">{ex?.driver}</span> via SMS relay
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

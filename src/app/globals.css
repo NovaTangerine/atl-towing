@@ -87,3 +87,35 @@
     @apply font-sans;
   }
 }
+
+/* Custom Mapbox Dark Popup */
+.mapbox-dark-popup .mapboxgl-popup-content {
+  background-color: #09090b; /* zinc-950 */
+  color: #fafafa;
+  border-radius: 0.75rem; /* rounded-xl */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  overflow: hidden;
+}
+
+.mapbox-dark-popup.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: #09090b;
+}
+.mapbox-dark-popup.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: #09090b;
+}
+.mapbox-dark-popup.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: #09090b;
+}
+.mapbox-dark-popup.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: #09090b;
+}
+.mapbox-dark-popup.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.mapbox-dark-popup.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+  border-bottom-color: #09090b;
+}
+.mapbox-dark-popup.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.mapbox-dark-popup.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+  border-top-color: #09090b;
+}

@@ -104,28 +104,29 @@ export default function ActiveRouteMock({
           </div>
         )}
 
-        <div className="flex gap-4">
+        {/* Floating Phone Action */}
+        <div className="absolute right-6 -top-4">
           <Button 
             onClick={handleContact}
-            className="h-20 w-20 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border-2 border-zinc-700 shrink-0 shadow-lg"
+            className="h-14 w-14 rounded-full bg-zinc-800 hover:bg-zinc-700 border-2 border-zinc-700 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center justify-center transition-all active:scale-95"
             aria-label="Contact Customer"
           >
-            <Phone className="w-8 h-8 text-white" />
+            <Phone className="w-6 h-6 text-white fill-white/20" />
           </Button>
+        </div>
 
-          <div className="flex-1 drop-shadow-xl">
-            {onArrive ? (
-              <SwipeToConfirm 
-                onConfirm={onArrive} 
-                text="Slide to Arrive"
-                className="w-full h-20"
-              />
-            ) : (
-              <Button disabled className="w-full h-20 rounded-2xl text-xl font-bold uppercase tracking-wider bg-zinc-800 text-zinc-500">
-                Preview Mode
-              </Button>
-            )}
-          </div>
+        <div className="w-full drop-shadow-xl mt-2">
+          {onArrive ? (
+            <SwipeToConfirm 
+              onConfirm={onArrive} 
+              text="Slide to Arrive"
+              className="w-full h-20"
+            />
+          ) : (
+            <Button disabled className="w-full h-20 rounded-2xl text-xl font-bold uppercase tracking-wider bg-zinc-800 text-zinc-500 shadow-xl">
+              Preview Mode
+            </Button>
+          )}
         </div>
       </div>
     </div>

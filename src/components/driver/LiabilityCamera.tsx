@@ -29,10 +29,10 @@ export default function LiabilityCamera({ onComplete }: LiabilityCameraProps) {
     
     setCaptureState('uploading');
     
-    // Simulate exactly 1.5s upload pacing
+    // Snappy 400ms upload pacing
     setTimeout(() => {
       setCaptureState('review');
-    }, 1500);
+    }, 400);
   };
 
   const handleNext = () => {

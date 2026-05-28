@@ -32,7 +32,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">Frank T.</h3><p class="text-sm text-zinc-400">En route to pickup</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-white text-base">Frank T.</h3><p class="text-sm text-zinc-400">En route to pickup</p></div>`
             },
             {
               id: 'oscar-truck',
@@ -51,7 +51,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold text-red-400">Oscar O.</h3><p class="text-sm text-zinc-400">Exception: Traffic Delay</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-red-400 text-base">Oscar O.</h3><p class="text-sm text-zinc-400">Exception: Traffic Delay</p></div>`
             },
             {
               id: 'pending-job',
@@ -70,7 +70,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-amber-900 text-white rounded"><h3 class="font-bold">B2B Request</h3><p class="text-sm text-amber-400">The Beacon Impound</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-amber-400 text-base">B2B Request</h3><p class="text-sm text-zinc-300">The Beacon Impound</p></div>`
             },
             {
               id: 'sarah-car',
@@ -89,7 +89,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2019 Toyota RAV4</h3><p class="text-sm text-zinc-400">Waiting for Frank T.</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-white text-base">2019 Toyota RAV4</h3><p class="text-sm text-zinc-400">Waiting for Frank T.</p></div>`
             },
             {
               id: 'fender-bender-car',
@@ -108,7 +108,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2018 Nissan Altima</h3><p class="text-sm text-zinc-400">In Transit with Marcus</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-white text-base">2018 Nissan Altima</h3><p class="text-sm text-zinc-400">In Transit with Marcus</p></div>`
             },
             {
               id: 'roadside-car',
@@ -127,7 +127,7 @@ export default function FleetMapMock() {
                   </div>
                 </div>
               ),
-              popupContent: `<div class="p-2 bg-zinc-900 text-white rounded"><h3 class="font-bold">2022 Chevy Malibu</h3><p class="text-sm text-zinc-400">David on scene</p></div>`
+              popupContent: `<div class="px-4 py-3 flex flex-col gap-0.5"><h3 class="font-bold text-white text-base">2022 Chevy Malibu</h3><p class="text-sm text-zinc-400">David on scene</p></div>`
             }
           ]}
         />
