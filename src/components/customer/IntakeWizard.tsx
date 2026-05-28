@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Wrench, 
@@ -17,15 +17,21 @@ import {
   ShieldCheck,
   Check,
   X,
-  Loader2
+  Loader2,
+  Truck,
+  Clock,
+  CalendarClock,
+  Navigation,
+  Info,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-type WizardStep = 'issue' | 'vehicle' | 'pricing';
+type WizardStep = 'service_type' | 'schedule' | 'issue' | 'destination_prompt' | 'destination_map' | 'vehicle' | 'pricing';
 
 const CAR_MAKES = [
   "Toyota", "Honda", "Ford", "Chevrolet", "Nissan", "Hyundai", "Kia", "Subaru", "Volkswagen", "Jeep", 
-  "GMC", "Ram", "Dodge", "Chrysler", "Mazda", "Buick", "Tesla", "BMW", "Audi", "Mercedes-Benz", "Lexus", "Volvo"
+  "GMC", "Ram", "Dodge", "Chrysler", "Mazda", "Buick", "Tesla", "BMW", "Audi", "Mercedes-Benz", "Lexus", "Volvo", "Rivian", "Lucid", "Polestar"
 ];
 
 const CAR_COLORS = [
@@ -44,32 +50,84 @@ const CAR_COLORS = [
   { name: 'Maroon', hex: '#800000' }
 ];
 
+const ToggleCard = ({ title, subtext, checked, onChange }: { title: string, subtext: string, checked: boolean, onChange: (v: boolean) => void }) => (
+  <div 
+    onClick={() => onChange(!checked)}
+    className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${checked ? 'border-primary bg-primary/10 shadow-[0_0_15px_-3px_rgba(255,255,255,0.1)]' : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'}`}
+  >
+    <div className={`mt-0.5 shrink-0 w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${checked ? 'bg-primary border-primary' : 'border-zinc-600'}`}>
+      {checked && <Check className="w-3.5 h-3.5 text-zinc-950 stroke-[3]" />}
+    </div>
+    <div>
+      <div className={`font-bold ${checked ? 'text-zinc-50' : 'text-zinc-300'}`}>{title}</div>
+      <div className="text-xs text-zinc-500 mt-1 leading-tight">{subtext}</div>
+    </div>
+  </div>
+);
+
 interface IntakeWizardProps {
   onBackToLocation: () => void;
   onDispatchComplete: () => void;
 }
 
 export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: IntakeWizardProps) {
-  const [step, setStep] = useState<WizardStep>('issue');
+  const [step, setStep] = useState<WizardStep>('service_type');
+  
+  // Flow State
+  const [serviceCategory, setServiceCategory] = useState<'tow' | 'roadside' | null>(null);
+  const [schedule, setSchedule] = useState<'asap' | 'scheduled' | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<string | null>(null);
+  
+  // Destination State
+  const [hasDestination, setHasDestination] = useState(false);
+  const [destinationMiles, setDestinationMiles] = useState(12); // Mock exact miles
   
   // Vehicle Details State
   const [make, setMake] = useState('');
   const [color, setColor] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
   
+  // Surcharge State
+  const [requiresFlatbed, setRequiresFlatbed] = useState(false);
+  const [isHeavyDuty, setIsHeavyDuty] = useState(false);
+  const [autoDetectedEV, setAutoDetectedEV] = useState(false);
+  
   const [isConfirming, setIsConfirming] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
 
-  const issues = [
+  const roadsideIssues = [
     { id: 'flat_tire', label: 'Flat Tire', icon: AlertTriangle },
     { id: 'dead_battery', label: 'Dead Battery', icon: BatteryWarning },
-    { id: 'accident', label: 'Accident', icon: CarFront },
-    { id: 'mechanical', label: 'Mechanical', icon: Wrench },
     { id: 'out_of_gas', label: 'Out of Gas', icon: Droplets },
     { id: 'locked_out', label: 'Locked Out', icon: Key },
   ];
+
+  // Auto-detect EV makes
+  useEffect(() => {
+    const lowerMake = make.toLowerCase();
+    const evBrands = ['tesla', 'rivian', 'lucid', 'polestar'];
+    if (evBrands.some(brand => lowerMake.includes(brand))) {
+      if (!autoDetectedEV && !requiresFlatbed) {
+        setRequiresFlatbed(true);
+        setAutoDetectedEV(true);
+      }
+    } else if (autoDetectedEV) {
+      setRequiresFlatbed(false);
+      setAutoDetectedEV(false);
+    }
+  }, [make, autoDetectedEV, requiresFlatbed]);
+
+  const handleServiceSelect = (category: 'tow' | 'roadside') => {
+    setServiceCategory(category);
+    if (category === 'tow') setStep('schedule');
+    else setStep('issue');
+  };
+
+  const handleScheduleSelect = (type: 'asap' | 'scheduled') => {
+    setSchedule(type);
+    setStep('destination_prompt');
+  };
 
   const handleIssueSelect = (id: string) => {
     setSelectedIssue(id);
@@ -95,7 +153,14 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
 
   const goBack = () => {
     if (step === 'pricing') setStep('vehicle');
-    else if (step === 'vehicle') setStep('issue');
+    else if (step === 'vehicle') {
+      if (serviceCategory === 'roadside') setStep('issue');
+      else setStep(hasDestination ? 'destination_map' : 'destination_prompt');
+    }
+    else if (step === 'destination_map') setStep('destination_prompt');
+    else if (step === 'destination_prompt') setStep('schedule');
+    else if (step === 'issue') setStep('service_type');
+    else if (step === 'schedule') setStep('service_type');
     else onBackToLocation();
   };
 
@@ -145,9 +210,11 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
         </button>
         <div className="flex-1 flex justify-center">
           <div className="flex gap-2">
-            <div className={`h-1.5 w-8 rounded-full transition-colors ${step === 'issue' || step === 'vehicle' || step === 'pricing' ? 'bg-primary' : 'bg-zinc-800'}`} />
-            <div className={`h-1.5 w-8 rounded-full transition-colors ${step === 'vehicle' || step === 'pricing' ? 'bg-primary' : 'bg-zinc-800'}`} />
-            <div className={`h-1.5 w-8 rounded-full transition-colors ${step === 'pricing' ? 'bg-primary' : 'bg-zinc-800'}`} />
+            <div className={`h-1.5 w-6 rounded-full transition-colors ${['service_type', 'schedule', 'issue', 'destination_prompt', 'destination_map', 'vehicle', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+            <div className={`h-1.5 w-6 rounded-full transition-colors ${['schedule', 'issue', 'destination_prompt', 'destination_map', 'vehicle', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+            <div className={`h-1.5 w-6 rounded-full transition-colors ${(['destination_prompt', 'destination_map', 'vehicle', 'pricing'].includes(step) && serviceCategory === 'tow') || ['vehicle', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+            <div className={`h-1.5 w-6 rounded-full transition-colors ${['vehicle', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+            <div className={`h-1.5 w-6 rounded-full transition-colors ${step === 'pricing' ? 'bg-primary' : 'bg-zinc-800'}`} />
           </div>
         </div>
         <div className="w-10" /> {/* Spacer to balance back button */}
@@ -155,14 +222,94 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
 
       <div className="flex-1 flex flex-col p-6">
         
-        {/* STEP 1: ISSUE SELECTOR */}
-        {step === 'issue' && (
+        {/* STEP 1: ROOT CHOICE */}
+        {step === 'service_type' && (
           <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-300">
+            {/* Dynamic Proximity Banner */}
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-6 flex items-center justify-center gap-2">
+              <MapPin className="w-5 h-5 text-primary" />
+              <span className="text-sm font-bold text-zinc-200">
+                3 Trucks Nearby | ~15 Min ETA | Base Rates from $75
+              </span>
+            </div>
+
+            <h1 className="text-3xl font-extrabold tracking-tight mb-2">How can we help?</h1>
+            <p className="text-zinc-400 mb-8 font-medium">Select the type of service you need.</p>
+            
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => handleServiceSelect('tow')}
+                className="relative flex items-center p-6 rounded-2xl border-2 border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-zinc-700 transition-all active:scale-[0.97]"
+              >
+                <div className="bg-zinc-800 p-4 rounded-full mr-5">
+                  <Truck className="w-8 h-8 text-zinc-300" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-zinc-50 mb-1">I need a Tow</div>
+                  <div className="text-sm text-zinc-400">My vehicle needs to be moved to a shop or home.</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleServiceSelect('roadside')}
+                className="relative flex items-center p-6 rounded-2xl border-2 border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-zinc-700 transition-all active:scale-[0.97]"
+              >
+                <div className="bg-zinc-800 p-4 rounded-full mr-5">
+                  <Wrench className="w-8 h-8 text-zinc-300" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-zinc-50 mb-1">Roadside Assistance</div>
+                  <div className="text-sm text-zinc-400">Jump start, flat tire, lockout, or out of gas.</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: SCHEDULE (TOW ONLY) */}
+        {step === 'schedule' && (
+          <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
+            <h1 className="text-3xl font-extrabold tracking-tight mb-2">When do you need the tow?</h1>
+            <p className="text-zinc-400 mb-8 font-medium">We can dispatch immediately or schedule for later.</p>
+            
+            <div className="flex flex-col gap-4">
+              <button
+                onClick={() => handleScheduleSelect('asap')}
+                className="relative flex items-center p-6 rounded-2xl border-2 border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-zinc-700 transition-all active:scale-[0.97]"
+              >
+                <div className="bg-zinc-800 p-4 rounded-full mr-5">
+                  <Clock className="w-8 h-8 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-zinc-50 mb-1">As soon as possible</div>
+                  <div className="text-sm text-zinc-400">We'll dispatch the nearest available driver.</div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleScheduleSelect('scheduled')}
+                className="relative flex items-center p-6 rounded-2xl border-2 border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-zinc-700 transition-all active:scale-[0.97]"
+              >
+                <div className="bg-zinc-800 p-4 rounded-full mr-5">
+                  <CalendarClock className="w-8 h-8 text-zinc-300" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xl font-bold text-zinc-50 mb-1">Schedule for later</div>
+                  <div className="text-sm text-zinc-400">Choose a specific date and time.</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: ISSUE (ROADSIDE ONLY) */}
+        {step === 'issue' && (
+          <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
             <h1 className="text-3xl font-extrabold tracking-tight mb-2">What's wrong?</h1>
-            <p className="text-zinc-400 mb-8 font-medium">Tap the issue to request the right truck.</p>
+            <p className="text-zinc-400 mb-8 font-medium">Select the type of roadside assistance you need.</p>
             
             <div className="grid grid-cols-2 gap-4">
-              {issues.map((issue) => {
+              {roadsideIssues.map((issue) => {
                 const Icon = issue.icon;
                 const isSelected = selectedIssue === issue.id;
                 return (
@@ -189,21 +336,92 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
               })}
             </div>
             
+            {/* Flat Rate Display for Roadside */}
             <div className="mt-auto pt-8 pb-4 text-center">
-              <p className="text-sm text-zinc-500 font-medium flex items-center justify-center gap-2">
-                <ShieldCheck className="w-4 h-4" /> Priority dispatch enabled
-              </p>
+              <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-zinc-900 border border-zinc-800 shadow-sm">
+                <ShieldCheck className="w-5 h-5 text-primary" /> 
+                <span className="font-bold text-zinc-200">Roadside services are a flat $125.</span>
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 2: VEHICLE DETAILS */}
+        {/* STEP 4: DESTINATION PROMPT (TOW ONLY) */}
+        {step === 'destination_prompt' && (
+          <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300 justify-center pb-20">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mb-6 text-primary border border-primary/20 mx-auto">
+              <Navigation className="w-10 h-10" />
+            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight mb-4 text-center">Want an exact price right now?</h1>
+            <p className="text-zinc-400 mb-10 text-center text-lg leading-relaxed max-w-xs mx-auto">
+              Set your drop-off destination in advance to lock in a firm quote with no surprises.
+            </p>
+            
+            <div className="flex flex-col gap-4 mt-8">
+              <Button
+                onClick={() => setStep('destination_map')}
+                size="lg"
+                className="w-full h-16 text-lg font-bold rounded-2xl shadow-[0_0_30px_-5px_rgba(255,255,255,0.3)]"
+              >
+                Set Destination
+              </Button>
+              <Button
+                onClick={() => {
+                  setHasDestination(false);
+                  setStep('vehicle');
+                }}
+                variant="ghost"
+                size="lg"
+                className="w-full h-16 text-lg font-semibold rounded-2xl text-zinc-400 hover:text-zinc-50 hover:bg-zinc-900"
+              >
+                Skip for now
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5: DESTINATION MAP (MOCK) */}
+        {step === 'destination_map' && (
+          <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-300">
+            <h1 className="text-2xl font-bold tracking-tight mb-4">Pinpoint Drop-off</h1>
+            
+            {/* Mock Map Area */}
+            <div className="flex-1 bg-zinc-900 border-2 border-zinc-800 rounded-2xl mb-6 relative overflow-hidden flex items-center justify-center">
+              <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/-84.3880,33.7490,12,0/600x600?access_token=pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJja2V4YW1wbGUifQ.example')] bg-cover bg-center opacity-40 grayscale" />
+              <div className="relative z-10 flex flex-col items-center">
+                <MapPin className="w-12 h-12 text-primary animate-bounce shadow-xl" />
+                <div className="w-4 h-1 bg-black/50 rounded-full blur-sm mt-1" />
+              </div>
+              <div className="absolute bottom-4 inset-x-4 bg-zinc-950/90 backdrop-blur-md p-4 rounded-xl border border-zinc-800">
+                <div className="text-sm text-zinc-400 font-medium mb-1">Destination Set:</div>
+                <div className="font-bold text-zinc-100">123 Mechanic Shop Way, Atlanta</div>
+                <div className="text-primary text-sm font-bold mt-1">Est. Distance: 12 Miles</div>
+              </div>
+            </div>
+
+            <div className="mt-auto pb-4">
+              <Button
+                onClick={() => {
+                  setHasDestination(true);
+                  setDestinationMiles(12);
+                  setStep('vehicle');
+                }}
+                size="lg"
+                className="w-full h-16 text-lg font-bold rounded-2xl"
+              >
+                Confirm Destination <ChevronRight className="ml-2 w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 6: VEHICLE DETAILS */}
         {step === 'vehicle' && (
           <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
             <h1 className="text-3xl font-extrabold tracking-tight mb-2">Vehicle Details</h1>
-            <p className="text-zinc-400 mb-8 font-medium">Helps our driver find you quickly.</p>
+            <p className="text-zinc-400 mb-6 font-medium">Helps our driver find you quickly.</p>
             
-            <div className="space-y-5">
+            <div className="space-y-4 mb-6">
               {/* Massive Input - Make/Model */}
               <div className="relative group">
                 {/* Background to prevent transparency issues if needed */}
@@ -331,7 +549,26 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
               </div>
             </div>
 
-            <div className="mt-auto pt-8 pb-4">
+            {/* Optional Surcharge Toggles */}
+            <div className="space-y-3 pt-4 border-t border-zinc-800/60">
+              <div className="text-xs font-bold tracking-wider text-zinc-500 uppercase mb-2">Special Requirements (Optional)</div>
+              
+              <ToggleCard 
+                title="Requires Flatbed / Special Care (+$50)"
+                subtext="For AWD, lowered vehicles, EVs, or severe accident damage."
+                checked={requiresFlatbed}
+                onChange={setRequiresFlatbed}
+              />
+              
+              <ToggleCard 
+                title="Heavy Duty / Oversized (+$50)"
+                subtext="For large trucks, utility vans, and oversized SUVs."
+                checked={isHeavyDuty}
+                onChange={setIsHeavyDuty}
+              />
+            </div>
+
+            <div className="mt-8 pb-4">
               <Button
                 onClick={() => setStep('pricing')}
                 disabled={!make || !color || !licensePlate}
@@ -344,7 +581,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
           </div>
         )}
 
-        {/* STEP 3: PRICING SUMMARY (CHECKOUT) */}
+        {/* STEP 7: PRICING SUMMARY (CHECKOUT) */}
         {step === 'pricing' && (
           <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
             <div className="flex items-center gap-3 mb-6">
@@ -358,42 +595,103 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
             </div>
             
             {/* Transparent Receipt View */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-6 relative overflow-hidden">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-4 relative overflow-hidden">
               {/* Receipt edge zig-zag mock */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjQiPjxwb2x5Z29uIHBvaW50cz0iMCAwIDQgNCA4IDAiIGZpbGw9IiMxODFhMWIiLz48L3N2Zz4=')] opacity-50" />
               
-              <div className="space-y-4 font-medium text-zinc-300">
+              <div className="space-y-4 font-medium text-zinc-300 mt-2">
+                
+                {/* Service Row */}
                 <div className="flex justify-between items-end pb-4 border-b border-zinc-800 border-dashed">
                   <div>
                     <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Service Type</div>
-                    <div className="text-zinc-50 capitalize">{selectedIssue?.replace('_', ' ')}</div>
+                    <div className="text-zinc-50 capitalize">
+                      {serviceCategory === 'roadside' 
+                        ? selectedIssue?.replace('_', ' ') 
+                        : 'Vehicle Tow'}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Base Rate</div>
-                    <div className="text-zinc-50">$75.00</div>
+                    <div className="text-zinc-50">
+                      ${serviceCategory === 'roadside' ? '125.00' : '75.00'}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end pb-4 border-b border-zinc-800 border-dashed">
-                  <div>
-                    <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Distance (Est.)</div>
-                    <div className="text-zinc-50">10 Miles @ $4.50/mi</div>
+                {/* Conditional Surcharge Rows */}
+                {serviceCategory === 'tow' && requiresFlatbed && (
+                  <div className="flex justify-between items-end pb-4 border-b border-zinc-800 border-dashed">
+                    <div>
+                      <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Surcharge</div>
+                      <div className="text-zinc-50">Flatbed / Special Care</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-zinc-50">$50.00</div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-zinc-50">$45.00</div>
-                  </div>
-                </div>
+                )}
 
+                {serviceCategory === 'tow' && isHeavyDuty && (
+                  <div className="flex justify-between items-end pb-4 border-b border-zinc-800 border-dashed">
+                    <div>
+                      <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Surcharge</div>
+                      <div className="text-zinc-50">Heavy Duty / Oversized</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-zinc-50">$50.00</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Conditional Distance Row */}
+                {serviceCategory === 'tow' && (
+                  <div className="flex justify-between items-end pb-4 border-b border-zinc-800 border-dashed">
+                    <div>
+                      <div className="text-sm text-zinc-500 mb-1 font-semibold uppercase tracking-wider">Distance {hasDestination ? '' : '(Est.)'}</div>
+                      <div className="text-zinc-50">
+                        {hasDestination ? `${destinationMiles} Miles @ $10/mi` : 'Calculated at drop-off @ $10/mi'}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-zinc-50">
+                        {hasDestination ? `$${(destinationMiles * 10).toFixed(2)}` : 'TBD'}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Total Row */}
                 <div className="flex justify-between items-center pt-2">
-                  <div className="text-lg font-bold text-zinc-50">Total Estimate</div>
-                  <div className="text-3xl font-extrabold text-primary">$120.00</div>
+                  <div className="text-lg font-bold text-zinc-50">
+                    {serviceCategory === 'roadside' ? 'Total' : (hasDestination ? 'Firm Quote' : 'Starting Estimate')}
+                  </div>
+                  <div className="text-3xl font-extrabold text-primary">
+                    ${(
+                      (serviceCategory === 'roadside' ? 125 : 75) + 
+                      (serviceCategory === 'tow' && requiresFlatbed ? 50 : 0) + 
+                      (serviceCategory === 'tow' && isHeavyDuty ? 50 : 0) + 
+                      (serviceCategory === 'tow' && hasDestination ? destinationMiles * 10 : 0)
+                    ).toFixed(2)}
+                  </div>
                 </div>
                 
                 <p className="text-xs text-zinc-500 leading-tight pt-2">
-                  * Final price may vary slightly based on exact drop-off location. Card will not be charged until the service is complete.
+                  * Card will not be charged until the service is complete. 
+                  {!hasDestination && serviceCategory === 'tow' && ' Mileage fee will be added to the final invoice.'}
                 </p>
               </div>
             </div>
+
+            {/* Educational UI for Flatbed/EV Surcharge */}
+            {serviceCategory === 'tow' && requiresFlatbed && (
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex gap-3 mb-4 animate-in fade-in">
+                <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+                <div className="text-xs text-blue-100/80 leading-relaxed">
+                  <span className="font-bold text-blue-400">Why a Flatbed?</span> Electric vehicles, AWD drivetrains, and severely damaged vehicles require specialized flatbed loading techniques and heavier-duty equipment to safely transport without causing mechanical damage.
+                </div>
+              </div>
+            )}
 
             {/* Destination Info Summary */}
             <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 flex gap-3 mb-auto">
@@ -404,7 +702,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
               </div>
             </div>
 
-            <div className="pt-6 pb-4">
+            <div className="pt-6 pb-4 mt-auto">
               <Button
                 onClick={handleDispatch}
                 disabled={isConfirming}
@@ -417,7 +715,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
                     Dispatching...
                   </>
                 ) : (
-                  "CONFIRM & DISPATCH TOW"
+                  "CONFIRM & DISPATCH"
                 )}
               </Button>
             </div>
