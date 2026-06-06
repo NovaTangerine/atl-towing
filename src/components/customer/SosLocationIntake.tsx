@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { MapPin, Loader2, CheckCircle2 } from 'lucide-react';
+import { MapPin, Loader2, CheckCircle2, Truck, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InteractiveMap from '@/components/ui/InteractiveMap';
 
@@ -43,14 +43,14 @@ export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
         />
       </div>
 
-      {/* Success Toast */}
-      <div className={`absolute top-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/30 px-5 py-3 rounded-full backdrop-blur-md shadow-lg shadow-green-500/20 transition-all duration-300 ${isSuccess ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-        <CheckCircle2 className="w-5 h-5" />
-        <span className="font-semibold text-sm">Location Locked</span>
+      {/* Success Toast (Bottom Placement) */}
+      <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-green-500/20 text-green-400 border border-green-500/30 px-6 py-4 rounded-full backdrop-blur-md shadow-2xl shadow-green-500/20 transition-all duration-500 delay-150 whitespace-nowrap ${isSuccess ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-95 pointer-events-none'}`}>
+        <CheckCircle2 className="w-6 h-6" />
+        <span className="font-bold text-base tracking-wide">Location Confirmed</span>
       </div>
 
       {/* Main Content Area */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center p-6 pb-24">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center p-6 pb-24 pointer-events-none">
         
         {/* Instruction Header */}
         <div className="absolute top-24 text-center space-y-1.5 max-w-[85vw]">
@@ -63,7 +63,7 @@ export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
         </div>
 
         {/* Pulsating Pin */}
-        <div className="relative flex items-center justify-center mt-12">
+        <div className="relative flex items-center justify-center mt-12 pointer-events-auto">
           {/* Pulse Rings */}
           <div className="absolute w-32 h-32 bg-primary/20 rounded-full animate-ping" style={{ animationDuration: '2.5s' }} />
           <div className="absolute w-48 h-48 bg-primary/10 rounded-full animate-ping" style={{ animationDuration: '2.5s', animationDelay: '0.8s' }} />
@@ -77,34 +77,45 @@ export default function SosLocationIntake({ onNext }: SosLocationIntakeProps) {
             <MapPin className="w-20 h-20 fill-primary/10 stroke-[1.5]" />
           </div>
           
+          {/* Mock Address Label */}
+          <div className={`absolute -top-14 whitespace-nowrap bg-zinc-900/90 backdrop-blur-sm text-zinc-100 text-sm font-semibold px-4 py-2 rounded-xl border border-zinc-700/50 shadow-xl transition-opacity duration-300 ${coordinates ? 'opacity-100' : 'opacity-0'}`}>
+            {coordinates ? '123 Peachtree St NE' : 'Locating...'}
+          </div>
+
           {/* Simulated Coordinates read-out */}
-          <div className={`absolute -top-12 whitespace-nowrap bg-zinc-900/90 backdrop-blur-sm text-zinc-300 text-sm px-3 py-1.5 rounded-lg font-mono border border-zinc-700/50 shadow-xl transition-opacity duration-300 ${coordinates ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`absolute -bottom-12 whitespace-nowrap bg-zinc-900/60 backdrop-blur-sm text-zinc-400 text-xs px-2 py-1 rounded-md font-mono border border-zinc-800/50 shadow-sm transition-opacity duration-300 ${coordinates ? 'opacity-100' : 'opacity-0'}`}>
             {coordinates ? `${coordinates[0].toFixed(4)}, ${coordinates[1].toFixed(4)}` : ''}
           </div>
         </div>
+      </div>
 
+      {/* Proximity Info Callouts */}
+      <div className="absolute bottom-36 left-0 right-0 flex justify-center gap-3 z-20 pointer-events-none px-6">
+        <div className="bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
+          <Truck className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold text-zinc-200">3 Nearby</span>
+        </div>
+        <div className="bg-zinc-900/90 backdrop-blur-md border border-zinc-800 rounded-full px-4 py-2 flex items-center gap-2 shadow-xl">
+          <Clock className="w-4 h-4 text-primary" />
+          <span className="text-sm font-bold text-zinc-200">~15 Min ETA</span>
+        </div>
       </div>
 
       {/* Bottom Action Area (Anchored) */}
-      <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent pt-12 pb-8 px-6">
+      <div className={`absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-zinc-950 via-zinc-950/95 to-transparent pt-12 pb-8 px-6 transition-all duration-500 ${isSuccess ? 'opacity-0 translate-y-10 pointer-events-none' : 'opacity-100 translate-y-0 pointer-events-auto'}`}>
         <Button
           onClick={handleSendHelp}
           disabled={isLoading || isSuccess}
           size="lg"
-          className="w-full h-20 text-xl font-extrabold rounded-2xl shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] transition-all active:scale-[0.97]"
+          className="w-full h-20 text-lg font-extrabold rounded-2xl shadow-[0_0_40px_-10px_rgba(255,255,255,0.2)] transition-all active:scale-[0.97] whitespace-nowrap"
         >
-          {isLoading ? (
+          {isLoading || isSuccess ? (
             <>
-              <Loader2 className="mr-3 h-8 w-8 animate-spin opacity-80" />
+              <Loader2 className="mr-3 h-7 w-7 animate-spin opacity-80" />
               <span className="tracking-wide">Locating...</span>
             </>
-          ) : isSuccess ? (
-            <>
-              <CheckCircle2 className="mr-3 h-8 w-8 text-green-400" />
-              <span className="tracking-wide text-green-50">Help Confirmed</span>
-            </>
           ) : (
-            <span className="tracking-wide">SEND HELP HERE</span>
+            <span className="tracking-wide">SET PICK-UP LOCATION</span>
           )}
         </Button>
       </div>

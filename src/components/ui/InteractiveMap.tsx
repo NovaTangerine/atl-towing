@@ -19,6 +19,8 @@ export interface InteractiveMapProps {
   markers?: MapMarker[];
   interactive?: boolean;
   onCenterChange?: (lng: number, lat: number) => void;
+  onMoveStart?: () => void;
+  onMoveEnd?: () => void;
   routePath?: [number, number][];
   fitBounds?: boolean;
   fitBoundsPadding?: number | { top: number; bottom: number; left: number; right: number };
@@ -33,6 +35,8 @@ export default function InteractiveMap({
   markers = [],
   interactive = true,
   onCenterChange,
+  onMoveStart,
+  onMoveEnd,
   routePath,
   fitBounds = false,
   fitBoundsPadding = 60,
@@ -125,6 +129,14 @@ export default function InteractiveMap({
       }
     });
 
+    map.on('movestart', () => {
+      if (onMoveStart) onMoveStart();
+    });
+
+    map.on('moveend', () => {
+      if (onMoveEnd) onMoveEnd();
+    });
+
     return () => {
       // Clean up all markers to prevent orphaned DOM nodes on re-mount
       Object.values(markersRef.current).forEach(m => m.remove());
@@ -132,6 +144,24 @@ export default function InteractiveMap({
       map.remove();
     };
   }, []); // Note: mapbox-gl initialization is meant to happen once.
+
+  // Update center and zoom when props change
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    
+    if (center) {
+      const currentCenter = map.getCenter();
+      if (Math.abs(currentCenter.lng - center[0]) > 0.0001 || Math.abs(currentCenter.lat - center[1]) > 0.0001) {
+        map.flyTo({ center, zoom: zoom || map.getZoom(), duration: 1000 });
+        return;
+      }
+    }
+    
+    if (zoom && Math.abs(map.getZoom() - zoom) > 0.1) {
+      map.flyTo({ zoom, duration: 1000 });
+    }
+  }, [center, zoom]);
 
   // Update markers when props change
   useEffect(() => {
