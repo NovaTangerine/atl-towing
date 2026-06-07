@@ -24,8 +24,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InteractiveMap from '@/components/ui/InteractiveMap';
+import { VehicleDetails } from '@/components/customer/VehicleDetailsIntake';
 
-type WizardStep = 'service_type' | 'schedule' | 'issue' | 'destination_prompt' | 'destination_map' | 'vehicle' | 'requirements' | 'pricing';
+type WizardStep = 'service_type' | 'schedule' | 'issue' | 'destination_prompt' | 'destination_map' | 'requirements' | 'pricing';
 
 const CAR_MAKES = [
   "Toyota", "Honda", "Ford", "Chevrolet", "Nissan", "Hyundai", "Kia", "Subaru", "Volkswagen", "Jeep", 
@@ -64,11 +65,12 @@ const ToggleCard = ({ title, subtext, checked, onChange }: { title: string, subt
 );
 
 interface IntakeWizardProps {
+  vehicleDetails: VehicleDetails;
   onBackToLocation: () => void;
   onDispatchComplete: () => void;
 }
 
-export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: IntakeWizardProps) {
+export default function IntakeWizard({ vehicleDetails, onBackToLocation, onDispatchComplete }: IntakeWizardProps) {
   const [step, setStep] = useState<WizardStep>('service_type');
   
   // Flow State
@@ -85,19 +87,12 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
   const [showDestSuccess, setShowDestSuccess] = useState(false);
   const pickupCoords: [number, number] = [-84.3985, 33.7188]; // Mock pickup
   
-  // Vehicle Details State
-  const [make, setMake] = useState('');
-  const [color, setColor] = useState('');
-  const [licensePlate, setLicensePlate] = useState('');
-  
   // Surcharge State
   const [requiresFlatbed, setRequiresFlatbed] = useState(false);
   const [isHeavyDuty, setIsHeavyDuty] = useState(false);
   const [autoDetectedEV, setAutoDetectedEV] = useState(false);
   
   const [isConfirming, setIsConfirming] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
 
   const roadsideIssues = [
     { id: 'flat_tire', label: 'Flat Tire', icon: AlertTriangle },
@@ -108,7 +103,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
 
   // Auto-detect EV makes
   useEffect(() => {
-    const lowerMake = make.toLowerCase();
+    const lowerMake = vehicleDetails?.make?.toLowerCase() || '';
     const evBrands = ['tesla', 'rivian', 'lucid', 'polestar'];
     if (evBrands.some(brand => lowerMake.includes(brand))) {
       if (!autoDetectedEV && !requiresFlatbed) {
@@ -119,7 +114,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
       setRequiresFlatbed(false);
       setAutoDetectedEV(false);
     }
-  }, [make, autoDetectedEV, requiresFlatbed]);
+  }, [vehicleDetails?.make, autoDetectedEV, requiresFlatbed]);
 
   const handleServiceSelect = (category: 'tow' | 'roadside') => {
     setServiceCategory(category);
@@ -134,16 +129,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
 
   const handleIssueSelect = (id: string) => {
     setSelectedIssue(id);
-    setTimeout(() => setStep('vehicle'), 300); // Brief delay for visual feedback
-  };
-
-  const handleScanPlate = () => {
-    setIsScanning(true);
-    setLicensePlate('SCANNING...');
-    setTimeout(() => {
-      setLicensePlate('ATL-8492');
-      setIsScanning(false);
-    }, 800);
+    setTimeout(() => setStep('requirements'), 300); // Brief delay for visual feedback
   };
 
   const handleDispatch = () => {
@@ -156,8 +142,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
 
   const goBack = () => {
     if (step === 'pricing') setStep('requirements');
-    else if (step === 'requirements') setStep('vehicle');
-    else if (step === 'vehicle') {
+    else if (step === 'requirements') {
       if (serviceCategory === 'roadside') setStep('issue');
       else setStep(hasDestination ? 'destination_map' : 'destination_prompt');
     }
@@ -168,45 +153,12 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
     else onBackToLocation();
   };
 
-  // Autocomplete Logic
-  const words = make.split(' ');
-  const lastWord = words[words.length - 1];
-  let suggestion = '';
-  let ghostText = '';
-  
-  if (lastWord.length >= 2) {
-    const match = CAR_MAKES.find(m => m.toLowerCase().startsWith(lastWord.toLowerCase()));
-    if (match && !dismissedSuggestions.has(match)) {
-      suggestion = match;
-      ghostText = match.slice(lastWord.length);
-    }
-  }
-
-  const handleMakeKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if ((e.key === 'Tab' || e.key === 'Enter') && suggestion) {
-      e.preventDefault();
-      acceptSuggestion();
-    }
-  };
-
-  const acceptSuggestion = () => {
-    const newWords = [...words];
-    newWords[newWords.length - 1] = suggestion;
-    setMake(newWords.join(' ') + ' ');
-  };
-
-  const dismissSuggestion = () => {
-    if (suggestion) {
-      setDismissedSuggestions(new Set([...dismissedSuggestions, suggestion]));
-    }
-  };
-
   // Determine map center and zoom based on step
   const mapZoom = step === 'destination_map' ? 13 : 15;
   const mapCenter: [number, number] = step === 'destination_map' ? dropoffCoords : pickupCoords;
   
   // Determine drawer height class based on step
-  const isExpandedStep = ['vehicle', 'requirements', 'pricing'].includes(step);
+  const isExpandedStep = ['requirements', 'pricing'].includes(step);
   const isHiddenStep = step === 'destination_map' && !showDestSuccess;
   
   let drawerHeightClass = '';
@@ -295,10 +247,10 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
           </button>
           <div className="flex-1 flex justify-center pointer-events-auto">
             <div className="flex gap-2 bg-zinc-900/50 backdrop-blur-md px-4 py-2.5 rounded-full border border-zinc-800">
-              <div className={`h-1.5 w-6 rounded-full transition-colors ${['service_type', 'schedule', 'issue', 'destination_prompt', 'destination_map', 'vehicle', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
-              <div className={`h-1.5 w-6 rounded-full transition-colors ${['schedule', 'issue', 'destination_prompt', 'destination_map', 'vehicle', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
-              <div className={`h-1.5 w-6 rounded-full transition-colors ${(['destination_prompt', 'destination_map', 'vehicle', 'requirements', 'pricing'].includes(step) && serviceCategory === 'tow') || ['vehicle', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
-              <div className={`h-1.5 w-6 rounded-full transition-colors ${['vehicle', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+              <div className={`h-1.5 w-6 rounded-full transition-colors ${['service_type', 'schedule', 'issue', 'destination_prompt', 'destination_map', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+              <div className={`h-1.5 w-6 rounded-full transition-colors ${['schedule', 'issue', 'destination_prompt', 'destination_map', 'requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+              <div className={`h-1.5 w-6 rounded-full transition-colors ${(['destination_prompt', 'destination_map', 'requirements', 'pricing'].includes(step) && serviceCategory === 'tow') || ['requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
+              <div className={`h-1.5 w-6 rounded-full transition-colors ${['requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
               <div className={`h-1.5 w-6 rounded-full transition-colors ${['requirements', 'pricing'].includes(step) ? 'bg-primary' : 'bg-zinc-800'}`} />
               <div className={`h-1.5 w-6 rounded-full transition-colors ${step === 'pricing' ? 'bg-primary' : 'bg-zinc-800'}`} />
             </div>
@@ -342,7 +294,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
                   setShowDestSuccess(false);
                   setHasDestination(true);
                   setDestinationMiles(12);
-                  setStep('vehicle');
+                  setStep('requirements');
                 }, 1500);
               }, 1000);
             }}
@@ -514,7 +466,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
                   <Button
                     onClick={() => {
                       setHasDestination(false);
-                      setStep('vehicle');
+                      setStep('requirements');
                     }}
                     variant="ghost"
                     size="lg"
@@ -526,148 +478,7 @@ export default function IntakeWizard({ onBackToLocation, onDispatchComplete }: I
               </div>
             )}
 
-            {/* STEP 6: VEHICLE DETAILS */}
-            {step === 'vehicle' && (
-              <div className="flex flex-col h-full animate-in fade-in slide-in-from-right-4 duration-300">
-                <h1 className="text-3xl font-extrabold tracking-tight mb-2">Vehicle Details</h1>
-                <p className="text-zinc-400 mb-6 font-medium">Tell us about your vehicle to finalize your quote.</p>
-                
-                <div className="space-y-4 mb-6">
-                  {/* Massive Input - Make/Model */}
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-zinc-950/50 rounded-xl border-2 border-zinc-800 z-0" aria-hidden="true" />
-                    
-                    <input
-                      type="text"
-                      id="make"
-                      value={make}
-                      onChange={(e) => setMake(e.target.value)}
-                      onKeyDown={handleMakeKeyDown}
-                      placeholder="e.g. Honda Civic"
-                      className="w-full border-2 border-zinc-800 focus:border-primary rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:outline-none transition-colors peer placeholder-transparent relative z-10 bg-transparent"
-                    />
-                    
-                    {/* Ghost Text Overlay */}
-                    {ghostText && (
-                      <div 
-                        className="absolute inset-0 pointer-events-none flex items-center px-4 pt-8 pb-4 border-2 border-transparent text-xl font-bold whitespace-pre overflow-hidden rounded-xl z-10"
-                        aria-hidden="true"
-                      >
-                        <span className="text-transparent">{make}</span>
-                        <span className="text-zinc-500">{ghostText}</span>
-                      </div>
-                    )}
-                    
-                    {/* Floating Action Buttons */}
-                    {ghostText && (
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 z-20 animate-in fade-in duration-200">
-                        <button 
-                          onClick={acceptSuggestion}
-                          className="p-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-colors"
-                          title="Accept suggestion"
-                        >
-                          <Check className="w-5 h-5" />
-                        </button>
-                        <button 
-                          onClick={dismissSuggestion}
-                          className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 rounded-lg transition-colors"
-                          title="Dismiss"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                    )}
 
-                    <label htmlFor="make" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary z-20 pointer-events-none">
-                      Make & Model
-                    </label>
-                  </div>
-
-                  {/* Massive Input - Color with Swatches */}
-                  <div className="space-y-3">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        id="color"
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        placeholder="e.g. Silver"
-                        className="w-full bg-zinc-950/50 border-2 border-zinc-800 rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:border-primary focus:outline-none transition-colors peer placeholder-transparent"
-                      />
-                      <label htmlFor="color" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary">
-                        Vehicle Color
-                      </label>
-                    </div>
-
-                    {/* Color Swatches */}
-                    <div className="flex overflow-x-auto no-scrollbar gap-4 py-3 px-3 border border-zinc-800/60 rounded-xl bg-zinc-950/30">
-                      {CAR_COLORS.map(c => {
-                        const isActive = color.toLowerCase() === c.name.toLowerCase();
-                        return (
-                          <button
-                            key={c.name}
-                            onClick={() => setColor(c.name)}
-                            className={`shrink-0 w-8 h-8 rounded-full border border-white/5 transition-all hover:scale-110 active:scale-95 shadow-sm ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-zinc-900' : 'hover:border-white/20'} ${c.bgClass || ''}`}
-                            style={!c.bgClass ? { backgroundColor: c.hex } : undefined}
-                            title={c.name}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Massive Input - License Plate with Scan Button */}
-                  <div className="relative flex gap-3 pt-2">
-                    <div className="relative flex-1">
-                      <input
-                        type="text"
-                        id="plate"
-                        value={licensePlate}
-                        onChange={(e) => setLicensePlate(e.target.value)}
-                        placeholder="Plate Number"
-                        className="w-full h-full bg-zinc-950/50 border-2 border-zinc-800 rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:border-primary focus:outline-none transition-colors peer placeholder-transparent"
-                      />
-                      <label htmlFor="plate" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary">
-                        License Plate
-                      </label>
-                    </div>
-                    
-                    <button 
-                      onClick={handleScanPlate}
-                      disabled={isScanning}
-                      className={`relative overflow-hidden bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl px-5 flex flex-col items-center justify-center gap-1 transition-colors active:scale-95 border-2 ${isScanning ? 'border-transparent' : 'border-zinc-800'}`}
-                    >
-                      {isScanning && (
-                        <div className="absolute inset-[-100%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg,transparent_0%,transparent_70%,hsl(var(--primary)))] opacity-70 z-0" />
-                      )}
-                      {isScanning && (
-                        <div className="absolute inset-[2px] bg-zinc-800 rounded-[10px] z-10" />
-                      )}
-                      
-                      <div className="relative z-20 flex flex-col items-center justify-center gap-1">
-                        {isScanning ? (
-                          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                        ) : (
-                          <Camera className="w-6 h-6" />
-                        )}
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Scan</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <Button
-                    onClick={() => setStep('requirements')}
-                    disabled={!make || !color || !licensePlate}
-                    size="lg"
-                    className="w-full h-16 text-lg font-bold rounded-2xl"
-                  >
-                    Next: View Estimate <ChevronRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            )}
 
             {/* STEP 7: REQUIREMENTS */}
             {step === 'requirements' && (

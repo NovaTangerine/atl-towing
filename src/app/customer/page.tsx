@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import SosLocationIntake from '@/components/customer/SosLocationIntake';
 import IntakeWizard from '@/components/customer/IntakeWizard';
+import VehicleDetailsIntake, { VehicleDetails } from '@/components/customer/VehicleDetailsIntake';
+import ContactDetailsIntake, { ContactDetails } from '@/components/customer/ContactDetailsIntake';
 import LiveTracking from '@/components/customer/LiveTracking';
 import VehicleRecovery from '@/components/customer/VehicleRecovery';
 import { Truck, ShieldAlert } from 'lucide-react';
 
 export default function CustomerView() {
-  const [currentView, setCurrentView] = useState<'home' | 'location' | 'wizard' | 'tracking' | 'recovery'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'contact' | 'vehicle' | 'location' | 'wizard' | 'tracking' | 'recovery'>('home');
+  const [contactDetails, setContactDetails] = useState<ContactDetails | null>(null);
+  const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails | null>(null);
 
   return (
     <main className="min-h-screen bg-zinc-950">
@@ -22,7 +26,7 @@ export default function CustomerView() {
           
           <div className="w-full max-w-md space-y-4">
             <button 
-              onClick={() => setCurrentView('location')}
+              onClick={() => setCurrentView('contact')}
               className="w-full bg-zinc-900 border-2 border-zinc-800 hover:border-primary p-6 rounded-2xl flex items-center gap-4 transition-all active:scale-95 text-left group"
             >
               <div className="bg-primary/20 p-4 rounded-full text-primary group-hover:scale-110 transition-transform">
@@ -50,12 +54,33 @@ export default function CustomerView() {
         </div>
       )}
 
+      {currentView === 'contact' && (
+        <ContactDetailsIntake 
+          onNext={(details) => {
+            setContactDetails(details);
+            setCurrentView('vehicle');
+          }}
+          onBack={() => setCurrentView('home')}
+        />
+      )}
+
+      {currentView === 'vehicle' && (
+        <VehicleDetailsIntake 
+          onNext={(details) => {
+            setVehicleDetails(details);
+            setCurrentView('location');
+          }}
+          onBack={() => setCurrentView('contact')}
+        />
+      )}
+
       {currentView === 'location' && (
         <SosLocationIntake onNext={() => setCurrentView('wizard')} />
       )}
       
       {currentView === 'wizard' && (
         <IntakeWizard 
+          vehicleDetails={vehicleDetails!}
           onBackToLocation={() => setCurrentView('location')} 
           onDispatchComplete={() => setCurrentView('tracking')}
         />
