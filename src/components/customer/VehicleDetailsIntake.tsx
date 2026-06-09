@@ -30,14 +30,17 @@ export interface VehicleDetails {
   make: string;
   color: string;
   licensePlate: string;
+  year?: string;
 }
 
 interface VehicleDetailsIntakeProps {
   onNext: (details: VehicleDetails) => void;
   onBack: () => void;
+  onTakePhoto?: () => void;
 }
 
-export default function VehicleDetailsIntake({ onNext, onBack }: VehicleDetailsIntakeProps) {
+export default function VehicleDetailsIntake({ onNext, onBack, onTakePhoto }: VehicleDetailsIntakeProps) {
+  const [year, setYear] = useState('');
   const [make, setMake] = useState('');
   const [color, setColor] = useState('');
   const [licensePlate, setLicensePlate] = useState('');
@@ -54,6 +57,7 @@ export default function VehicleDetailsIntake({ onNext, onBack }: VehicleDetailsI
   };
 
   const handleAutofill = () => {
+    setYear('2021');
     setMake('Tesla Model 3 ');
     setColor('White');
     setLicensePlate('DEMO-123');
@@ -116,13 +120,25 @@ export default function VehicleDetailsIntake({ onNext, onBack }: VehicleDetailsI
           </button>
         </div>
 
-        <button
-          onClick={handleAutofill}
-          className="p-2 -mr-2 rounded-full bg-zinc-900/30 backdrop-blur-md border border-zinc-800/50 hover:bg-zinc-800 transition-colors active:scale-95 pointer-events-auto text-zinc-500 hover:text-zinc-300"
-          title="Autofill Demo Data"
-        >
-          <Wand2 className="w-5 h-5" />
-        </button>
+        <div className="flex items-center gap-2">
+          {onTakePhoto && (
+            <button
+              onClick={onTakePhoto}
+              className="px-4 py-2 -mr-2 rounded-full bg-zinc-900/50 backdrop-blur-md border border-zinc-800/50 hover:bg-zinc-800 transition-colors active:scale-95 pointer-events-auto text-zinc-300 hover:text-white flex items-center gap-2 text-sm font-bold shadow-lg"
+            >
+              <Camera className="w-4 h-4" />
+              <span>Capture Photo Instead</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleAutofill}
+            className="p-2 -mr-2 rounded-full bg-zinc-900/30 backdrop-blur-md border border-zinc-800/50 hover:bg-zinc-800 transition-colors active:scale-95 pointer-events-auto text-zinc-500 hover:text-zinc-300"
+            title="Autofill Demo Data"
+          >
+            <Wand2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Filler to push drawer to bottom */}
@@ -189,20 +205,36 @@ export default function VehicleDetailsIntake({ onNext, onBack }: VehicleDetailsI
                   </label>
                 </div>
 
-                {/* Massive Input - Color with Swatches */}
+                {/* Massive Input - Year & Color with Swatches */}
                 <div className="space-y-3">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      id="color"
-                      value={color}
-                      onChange={(e) => setColor(e.target.value)}
-                      placeholder="e.g. Silver"
-                      className="w-full bg-zinc-950/50 border-2 border-zinc-800 rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:border-primary focus:outline-none transition-colors peer placeholder-transparent"
-                    />
-                    <label htmlFor="color" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary">
-                      Vehicle Color
-                    </label>
+                  <div className="flex gap-3">
+                    <div className="relative w-1/3">
+                      <input
+                        type="text"
+                        id="year"
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                        placeholder="e.g. 2021"
+                        className="w-full bg-zinc-950/50 border-2 border-zinc-800 rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:border-primary focus:outline-none transition-colors peer placeholder-transparent"
+                      />
+                      <label htmlFor="year" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary">
+                        Year
+                      </label>
+                    </div>
+
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        id="color"
+                        value={color}
+                        onChange={(e) => setColor(e.target.value)}
+                        placeholder="e.g. Silver"
+                        className="w-full bg-zinc-950/50 border-2 border-zinc-800 rounded-xl px-4 pt-8 pb-4 text-xl font-bold text-zinc-50 focus:border-primary focus:outline-none transition-colors peer placeholder-transparent"
+                      />
+                      <label htmlFor="color" className="absolute left-4 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary">
+                        Vehicle Color
+                      </label>
+                    </div>
                   </div>
 
                   {/* Color Swatches */}
@@ -264,8 +296,8 @@ export default function VehicleDetailsIntake({ onNext, onBack }: VehicleDetailsI
 
               <div className="mt-8">
                 <Button
-                  onClick={() => onNext({ make, color, licensePlate })}
-                  disabled={!make || !color || !licensePlate}
+                  onClick={() => onNext({ year, make, color, licensePlate })}
+                  disabled={!year || !make || !color || !licensePlate}
                   size="lg"
                   className="w-full h-16 text-lg font-bold rounded-2xl"
                 >

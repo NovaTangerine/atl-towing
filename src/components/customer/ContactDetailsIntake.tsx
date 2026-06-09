@@ -75,73 +75,69 @@ export default function ContactDetailsIntake({ onNext, onBack }: ContactDetailsI
               <h1 className="text-3xl font-extrabold tracking-tight mb-2">Your Info</h1>
               <p className="text-zinc-400 mb-6 font-medium">How can we reach you?</p>
               
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4 mb-8">
                 {/* Name Input */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-zinc-950/50 rounded-xl border-2 border-zinc-800 z-0" aria-hidden="true" />
-                  
-                  <input
-                    type="text"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Full Name"
-                    className="w-full border-2 border-zinc-800 focus:border-primary rounded-xl px-4 pt-8 pb-4 pl-12 text-xl font-bold text-zinc-50 focus:outline-none transition-colors peer placeholder-transparent relative z-10 bg-transparent"
-                  />
-                  
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-zinc-500 peer-focus:text-primary transition-colors">
-                    <User className="w-5 h-5" />
+                <div className="group relative flex items-center bg-zinc-900/40 border-2 border-zinc-800 hover:border-zinc-700 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 focus-within:bg-zinc-900/80 rounded-2xl transition-all duration-300 px-5 h-20">
+                  <div className="shrink-0 text-zinc-500 group-focus-within:text-primary transition-colors duration-300 mr-4">
+                    <User className="w-6 h-6" />
                   </div>
-
-                  <label htmlFor="name" className="absolute left-12 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary z-20 pointer-events-none">
-                    Full Name
-                  </label>
+                  
+                  <div className="flex flex-col flex-1 h-full justify-center pt-1">
+                    <label htmlFor="name" className="text-[11px] font-extrabold tracking-widest text-zinc-500 uppercase group-focus-within:text-primary transition-colors duration-300 cursor-text">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g. Jane Doe"
+                      className="w-full bg-transparent text-xl font-bold text-zinc-50 placeholder:text-zinc-700 focus:outline-none mt-0.5"
+                    />
+                  </div>
                 </div>
 
                 {/* Phone Input */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-zinc-950/50 rounded-xl border-2 border-zinc-800 z-0" aria-hidden="true" />
-                  
-                  <input
-                    type="tel"
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Phone Number"
-                    className="w-full border-2 border-zinc-800 focus:border-primary rounded-xl px-4 pt-8 pb-4 pl-12 text-xl font-bold text-zinc-50 focus:outline-none transition-colors peer placeholder-transparent relative z-10 bg-transparent"
-                  />
-                  
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-zinc-500 peer-focus:text-primary transition-colors">
-                    <Phone className="w-5 h-5" />
+                <div className="group relative flex items-center bg-zinc-900/40 border-2 border-zinc-800 hover:border-zinc-700 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 focus-within:bg-zinc-900/80 rounded-2xl transition-all duration-300 px-5 h-20">
+                  <div className="shrink-0 text-zinc-500 group-focus-within:text-primary transition-colors duration-300 mr-4">
+                    <Phone className="w-6 h-6" />
                   </div>
-
-                  <label htmlFor="phone" className="absolute left-12 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary z-20 pointer-events-none">
-                    Phone Number
-                  </label>
+                  
+                  <div className="flex flex-col flex-1 h-full justify-center pt-1">
+                    <label htmlFor="phone" className="text-[11px] font-extrabold tracking-widest text-zinc-500 uppercase group-focus-within:text-primary transition-colors duration-300 cursor-text">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="(555) 000-0000"
+                      className="w-full bg-transparent text-xl font-bold text-zinc-50 placeholder:text-zinc-700 focus:outline-none mt-0.5"
+                    />
+                  </div>
                 </div>
 
                 {/* Email Input */}
-                <div className="relative group">
-                  <div className="absolute inset-0 bg-zinc-950/50 rounded-xl border-2 border-zinc-800 z-0" aria-hidden="true" />
-                  
-                  <input
-                    type="email"
-                    id="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email Address"
-                    className="w-full border-2 border-zinc-800 focus:border-primary rounded-xl px-4 pt-8 pb-4 pl-12 text-xl font-bold text-zinc-50 focus:outline-none transition-colors peer placeholder-transparent relative z-10 bg-transparent"
-                  />
-                  
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 z-20 text-zinc-500 peer-focus:text-primary transition-colors">
-                    <Mail className="w-5 h-5" />
+                <div className="group relative flex items-center bg-zinc-900/40 border-2 border-zinc-800 hover:border-zinc-700 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 focus-within:bg-zinc-900/80 rounded-2xl transition-all duration-300 px-5 h-20">
+                  <div className="shrink-0 text-zinc-500 group-focus-within:text-primary transition-colors duration-300 mr-4">
+                    <Mail className="w-6 h-6" />
                   </div>
-
-                  <label htmlFor="email" className="absolute left-12 top-2 text-xs font-bold tracking-wider text-zinc-500 uppercase transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-6 peer-placeholder-shown:font-medium peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-primary z-20 pointer-events-none">
-                    Email Address
-                  </label>
+                  
+                  <div className="flex flex-col flex-1 h-full justify-center pt-1">
+                    <label htmlFor="email" className="text-[11px] font-extrabold tracking-widest text-zinc-500 uppercase group-focus-within:text-primary transition-colors duration-300 cursor-text">
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      className="w-full bg-transparent text-xl font-bold text-zinc-50 placeholder:text-zinc-700 focus:outline-none mt-0.5"
+                    />
+                  </div>
                 </div>
-
               </div>
 
               <div className="mt-8">

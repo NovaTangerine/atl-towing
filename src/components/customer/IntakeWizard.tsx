@@ -591,6 +591,12 @@ export default function IntakeWizard({ vehicleDetails, onBackToLocation, onDispa
                           <div className="text-zinc-50">
                             {hasDestination ? `${destinationMiles} Miles @ $10/mi` : 'Distance (Est.)'}
                           </div>
+                          {hasDestination && (
+                            <div className="text-xs text-zinc-400 mt-1.5 flex flex-col gap-0.5">
+                              <div><span className="text-zinc-500">From:</span> 123 Mechanic Shop Way</div>
+                              <div><span className="text-zinc-500">To:</span> 482 Highland Avenue NE</div>
+                            </div>
+                          )}
                         </div>
                         <div className="text-right text-zinc-50">
                           {hasDestination ? `$${(destinationMiles * 10).toFixed(2)}` : 'TBD'}

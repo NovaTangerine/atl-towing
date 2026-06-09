@@ -5,14 +5,17 @@ import SosLocationIntake from '@/components/customer/SosLocationIntake';
 import IntakeWizard from '@/components/customer/IntakeWizard';
 import VehicleDetailsIntake, { VehicleDetails } from '@/components/customer/VehicleDetailsIntake';
 import ContactDetailsIntake, { ContactDetails } from '@/components/customer/ContactDetailsIntake';
+import VehiclePhotoCapture from '@/components/customer/VehiclePhotoCapture';
+import VehiclePhotoReview from '@/components/customer/VehiclePhotoReview';
 import LiveTracking from '@/components/customer/LiveTracking';
 import VehicleRecovery from '@/components/customer/VehicleRecovery';
 import { Truck, ShieldAlert } from 'lucide-react';
 
 export default function CustomerView() {
-  const [currentView, setCurrentView] = useState<'home' | 'contact' | 'vehicle' | 'location' | 'wizard' | 'tracking' | 'recovery'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'contact' | 'vehicle' | 'vehicle_photo' | 'vehicle_review' | 'location' | 'wizard' | 'tracking' | 'recovery'>('home');
   const [contactDetails, setContactDetails] = useState<ContactDetails | null>(null);
   const [vehicleDetails, setVehicleDetails] = useState<VehicleDetails | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
 
   return (
     <main className="min-h-screen bg-zinc-950">
@@ -71,6 +74,32 @@ export default function CustomerView() {
             setCurrentView('location');
           }}
           onBack={() => setCurrentView('contact')}
+          onTakePhoto={() => setCurrentView('vehicle_photo')}
+        />
+      )}
+
+      {currentView === 'vehicle_photo' && (
+        <VehiclePhotoCapture
+          onCapture={(url) => {
+            setPhotoUrl(url);
+            setCurrentView('vehicle_review');
+          }}
+          onCancel={() => setCurrentView('vehicle')}
+        />
+      )}
+
+      {currentView === 'vehicle_review' && photoUrl && (
+        <VehiclePhotoReview
+          photoUrl={photoUrl}
+          initialDetails={{ make: 'BMW 3 Series', color: 'Black', licensePlate: 'SCN-998', year: '2021' }}
+          onAccept={(details) => {
+            setVehicleDetails(details);
+            setCurrentView('location');
+          }}
+          onDelete={() => {
+            setPhotoUrl(null);
+            setCurrentView('vehicle');
+          }}
         />
       )}
 

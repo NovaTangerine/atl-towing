@@ -11,6 +11,7 @@ export interface MapMarker {
   lat: number;
   element?: React.ReactNode;
   popupContent?: string;
+  excludeFromBounds?: boolean;
 }
 
 export interface InteractiveMapProps {
@@ -21,9 +22,12 @@ export interface InteractiveMapProps {
   onCenterChange?: (lng: number, lat: number) => void;
   onMoveStart?: () => void;
   onMoveEnd?: () => void;
+  flyToDuration?: number;
+  centerPadding?: number | { top: number; bottom: number; left: number; right: number };
   routePath?: [number, number][];
   fitBounds?: boolean;
   fitBoundsPadding?: number | { top: number; bottom: number; left: number; right: number };
+  fitBoundsDuration?: number;
   fitRouteToBounds?: boolean;
   bounds?: [[number, number], [number, number]];
   className?: string;
@@ -37,9 +41,12 @@ export default function InteractiveMap({
   onCenterChange,
   onMoveStart,
   onMoveEnd,
+  flyToDuration,
+  centerPadding,
   routePath,
   fitBounds = false,
   fitBoundsPadding = 60,
+  fitBoundsDuration,
   fitRouteToBounds = true,
   bounds,
   className = "w-full h-full"
@@ -107,8 +114,12 @@ export default function InteractiveMap({
         let hasBounds = false;
         
         if (markers && markers.length > 0) {
-          markers.forEach(m => bounds.extend([m.lng, m.lat]));
-          hasBounds = true;
+          markers.forEach(m => {
+            if (!m.excludeFromBounds) {
+              bounds.extend([m.lng, m.lat]);
+              hasBounds = true;
+            }
+          });
         }
         
         if (fitRouteToBounds && routePath && routePath.length > 0) {
@@ -117,7 +128,11 @@ export default function InteractiveMap({
         }
 
         if (hasBounds) {
-          map.fitBounds(bounds, { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 });
+          const options: mapboxgl.FitBoundsOptions = { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 };
+          if (typeof fitBoundsDuration === 'number') {
+            options.duration = fitBoundsDuration;
+          }
+          map.fitBounds(bounds, options);
         }
       }
     });
@@ -153,15 +168,24 @@ export default function InteractiveMap({
     if (center) {
       const currentCenter = map.getCenter();
       if (Math.abs(currentCenter.lng - center[0]) > 0.0001 || Math.abs(currentCenter.lat - center[1]) > 0.0001) {
-        map.flyTo({ center, zoom: zoom || map.getZoom(), duration: 1000 });
+        map.easeTo({ 
+          center, 
+          zoom: zoom || map.getZoom(), 
+          duration: flyToDuration !== undefined ? flyToDuration : 1000,
+          padding: centerPadding as mapboxgl.PaddingOptions
+        });
         return;
       }
     }
     
     if (zoom && Math.abs(map.getZoom() - zoom) > 0.1) {
-      map.flyTo({ zoom, duration: 1000 });
+      map.easeTo({ 
+        zoom, 
+        duration: flyToDuration !== undefined ? flyToDuration : 1000,
+        padding: centerPadding as mapboxgl.PaddingOptions
+      });
     }
-  }, [center, zoom]);
+  }, [center, zoom, flyToDuration]);
 
   // Update markers when props change
   useEffect(() => {
@@ -212,8 +236,10 @@ export default function InteractiveMap({
       let hasBounds = false;
       
       markers.forEach(m => {
-        bounds.extend([m.lng, m.lat]);
-        hasBounds = true;
+        if (!m.excludeFromBounds) {
+          bounds.extend([m.lng, m.lat]);
+          hasBounds = true;
+        }
       });
       
       if (fitRouteToBounds && routePath && routePath.length > 0) {
@@ -224,7 +250,11 @@ export default function InteractiveMap({
       }
 
       if (hasBounds) {
-        map.fitBounds(bounds, { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 });
+        const options: mapboxgl.FitBoundsOptions = { padding: fitBoundsPadding as mapboxgl.PaddingOptions, maxZoom: 16 };
+        if (typeof fitBoundsDuration === 'number') {
+          options.duration = fitBoundsDuration;
+        }
+        map.fitBounds(bounds, options);
       }
     }
   }, [markers, fitBounds, routePath]);

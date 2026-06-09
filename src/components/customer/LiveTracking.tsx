@@ -8,7 +8,8 @@ import {
   Phone,
   ShieldCheck,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import InteractiveMap from '@/components/ui/InteractiveMap';
@@ -37,49 +38,60 @@ export default function LiveTracking() {
 
     const totalDuration = 3000;
     const targetIndex = ROUTE_PATH.length - 2; // Stop one block away
-    const intervalTime = totalDuration / targetIndex;
-    
-    let currentIndex = 0;
-    
-    const interval = setInterval(() => {
-      currentIndex++;
-      if (currentIndex <= targetIndex) {
-        setDriverPos(ROUTE_PATH[currentIndex] as [number, number]);
-      }
+    let startTime: number | null = null;
+    let animationFrameId: number;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / totalDuration, 1);
       
-      if (currentIndex >= targetIndex) {
-        clearInterval(interval);
+      // Calculate smooth progress
+      const totalSegments = targetIndex;
+      const currentSegmentFloat = progress * totalSegments;
+
+      // For step-by-step truck jumping
+      const currentSegmentIndexStep = Math.min(Math.floor(currentSegmentFloat), totalSegments);
+      setDriverPos(ROUTE_PATH[currentSegmentIndexStep] as [number, number]);
+
+      if (progress < 1) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
         setIsAnimating(false);
         setIsApproaching(true);
       }
-    }, intervalTime);
+    };
 
-    return () => clearInterval(interval);
+    animationFrameId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrameId);
   }, [isAnimating]);
 
   const handleSimulate = () => {
-    setDriverPos(ROUTE_PATH[0] as [number, number]);
     setIsApproaching(false);
-    setIsAnimating(true);
+    setIsAnimating(false);
+    setDriverPos(ROUTE_PATH[0] as [number, number]);
+    
+    // Give the map a moment to instantly reset its camera before starting the smooth zoom
+    setTimeout(() => {
+      setIsAnimating(true);
+    }, 50);
   };
 
   return (
     <div className="relative flex h-[100dvh] w-full flex-col bg-zinc-950 overflow-hidden text-zinc-50 dark">
-      {/* Dev Simulate Button */}
-      <button 
-        onClick={handleSimulate}
-        className="absolute top-4 right-4 z-50 bg-black/50 text-white/50 text-[10px] font-mono px-3 py-1.5 rounded-full backdrop-blur-md border border-white/10 hover:text-white transition-colors"
-      >
-        [Dev] Simulate Approach
-      </button>
+      {/* Dev Simulate Button - Moved just above drawer */}
 
       {/* Mapbox Live Map */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-zinc-950/20 z-10 pointer-events-none" />
         <InteractiveMap
-          center={[-84.3960, 33.7115]}
-          zoom={14}
-          fitBounds={true}
+          center={isAnimating || isApproaching ? ROUTE_PATH[ROUTE_PATH.length - 1] as [number, number] : [-84.3960, 33.7115]}
+          zoom={isAnimating || isApproaching ? 15.5 : 14}
+          flyToDuration={!isAnimating && !isApproaching ? 0 : 6000}
+          centerPadding={{ top: 180, bottom: 380, left: 40, right: 40 }}
+          fitBounds={!isAnimating && !isApproaching}
+          fitBoundsDuration={!isAnimating && !isApproaching ? 0 : 1000}
           fitRouteToBounds={!isAnimating && !isApproaching}
           fitBoundsPadding={{ top: 180, bottom: 380, left: 40, right: 40 }}
           interactive={false}
@@ -89,6 +101,7 @@ export default function LiveTracking() {
               id: 'driver',
               lng: driverPos[0],
               lat: driverPos[1],
+              excludeFromBounds: true,
               element: (
                 <div className="relative animate-bounce" style={{ animationDuration: '3s' }}>
                   <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse" />
@@ -104,6 +117,7 @@ export default function LiveTracking() {
               id: 'customer',
               lng: ROUTE_PATH[ROUTE_PATH.length - 1][0],
               lat: ROUTE_PATH[ROUTE_PATH.length - 1][1],
+              excludeFromBounds: false,
               element: (
                 <div className="relative">
                   <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full -left-4 -top-4 animate-ping" style={{ animationDuration: '3s' }} />
@@ -166,6 +180,17 @@ export default function LiveTracking() {
       </div>
 
       <div className="relative z-10 flex-1 pointer-events-none"></div>
+
+      {/* Dev Simulate Button - placed just above the drawer */}
+      <div className="relative z-50 w-full px-4 pb-4 flex justify-end pointer-events-none">
+        <button
+          onClick={handleSimulate}
+          className="p-2 rounded-full bg-zinc-900/30 backdrop-blur-md border border-zinc-800/50 hover:bg-zinc-800 transition-colors active:scale-95 pointer-events-auto text-zinc-500 hover:text-zinc-300"
+          title="Simulate Approach"
+        >
+          <Play className="w-5 h-5" />
+        </button>
+      </div>
 
       {/* Bottom Driver Sheet */}
       <div className="relative z-50 animate-in slide-in-from-bottom-full duration-700">
