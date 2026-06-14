@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import { Search, Filter, Truck, Loader2 } from 'lucide-react';
 
 const MOCK_JOBS = [
-  { id: 'ATL-4091', customer: 'Sarah M.', driver: 'Frank T.', status: 'en_route', eta: '4m', loc: 'I-75/85 SB' },
-  { id: 'ATL-4092', customer: 'B2B Brian', driver: 'Unassigned', status: 'pending', eta: '--', loc: 'The Beacon' },
-  { id: 'ATL-4093', customer: 'Event Traffic', driver: 'Oscar O.', status: 'exception', eta: '+15m', loc: 'Lakewood Amp' },
-  { id: 'ATL-4094', customer: 'Fender Bender', driver: 'Marcus', status: 'in_transit', eta: '8m', loc: 'Moreland Ave' },
-  { id: 'ATL-4095', customer: 'Roadside Assist', driver: 'David', status: 'on_scene', eta: '--', loc: 'Brownsmill Golf' },
+  { id: 'ATL-4091', customer: 'Sarah M.', driver: 'Frank T.', status: 'en_route', eta: '4m', loc: 'I-75/85 SB', lng: -84.3985, lat: 33.7188 },
+  { id: 'ATL-4092', customer: 'B2B Brian', driver: 'Unassigned', status: 'pending', eta: '--', loc: 'The Beacon', lng: -84.3712, lat: 33.7259 },
+  { id: 'ATL-4093', customer: 'Event Traffic', driver: 'Oscar O.', status: 'exception', eta: '+15m', loc: 'Lakewood Amp', lng: -84.3879, lat: 33.7012 },
+  { id: 'ATL-4094', customer: 'Fender Bender', driver: 'Marcus', status: 'in_transit', eta: '8m', loc: 'Moreland Ave', lng: -84.3491, lat: 33.7061 },
+  { id: 'ATL-4095', customer: 'Roadside Assist', driver: 'David', status: 'on_scene', eta: '--', loc: 'Brownsmill Golf', lng: -84.3768, lat: 33.6795 },
 ];
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -22,8 +22,10 @@ const StatusBadge = ({ status }: { status: string }) => {
   }
 };
 
-export default function ActiveStatusBoard() {
+export default function ActiveStatusBoard({ onJobClick }: { onJobClick?: (lng: number, lat: number) => void }) {
   const [isCreatingJob, setIsCreatingJob] = useState(false);
+  const [width, setWidth] = useState(500);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleNewJob = () => {
     setIsCreatingJob(true);
@@ -33,7 +35,10 @@ export default function ActiveStatusBoard() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950 border-r border-zinc-800 text-zinc-300 w-[500px] shrink-0">
+    <div 
+      className="flex flex-col h-full bg-zinc-950 border-r border-zinc-800 text-zinc-300 shrink-0 relative"
+      style={{ width: `${width}px` }}
+    >
       {/* Header & Controls */}
       <div className="p-4 border-b border-zinc-800 bg-zinc-900/50 space-y-4">
         <div className="flex justify-between items-center">
@@ -82,6 +87,7 @@ export default function ActiveStatusBoard() {
             {MOCK_JOBS.map((job, idx) => (
               <tr 
                 key={job.id} 
+                onClick={() => onJobClick && onJobClick(job.lng, job.lat)}
                 className={`group cursor-pointer transition-colors ${idx === 0 ? 'bg-zinc-800/40 border-l-2 border-l-blue-500' : 'hover:bg-zinc-900 border-l-2 border-l-transparent'}`}
               >
                 <td className="px-4 py-3 font-mono text-zinc-400 group-hover:text-white transition-colors">{job.id}</td>
@@ -122,6 +128,26 @@ export default function ActiveStatusBoard() {
           <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
           <span className="text-sm font-medium tracking-wide">Allocating new job block...</span>
         </div>
+      )}
+
+      {/* Drag to resize handle */}
+      <div 
+        className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-blue-500/50 active:bg-blue-500 z-50 transition-colors translate-x-1/2"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+      />
+      {isDragging && (
+        <div 
+          className="fixed inset-0 z-[9999] cursor-col-resize select-none"
+          onMouseMove={(e) => {
+            const newWidth = Math.max(350, Math.min(e.clientX, 800)); // min 350px, max 800px
+            setWidth(newWidth);
+          }}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+        />
       )}
     </div>
   );

@@ -4,14 +4,16 @@ import React from 'react';
 import { Truck, AlertTriangle, CarFront } from 'lucide-react';
 import InteractiveMap from '@/components/ui/InteractiveMap';
 
-export default function FleetMapMock() {
+export default function FleetMapMock({ center, zoom }: { center?: [number, number], zoom?: number }) {
   return (
     <div className="relative flex-1 h-full bg-[#0a0a0c] overflow-hidden">
       {/* Real Mapbox Dispatcher Map */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-blue-900/5 z-10 pointer-events-none" />
         <InteractiveMap
-          bounds={[[-84.40, 33.67], [-84.34, 33.73]]}
+          bounds={!center ? [[-84.40, 33.67], [-84.34, 33.73]] : undefined}
+          center={center}
+          zoom={zoom}
           interactive={true}
           markers={[
             {
@@ -134,7 +136,7 @@ export default function FleetMapMock() {
       </div>
 
       {/* Map UI Overlay (Zoom controls, etc) */}
-      <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20 pointer-events-none">
+      <div className="absolute bottom-6 right-[374px] flex flex-col gap-2 z-20 pointer-events-none">
         <button className="w-10 h-10 bg-zinc-900 border border-zinc-700 rounded shadow-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 font-bold text-lg pointer-events-auto">+</button>
         <button className="w-10 h-10 bg-zinc-900 border border-zinc-700 rounded shadow-xl flex items-center justify-center text-zinc-400 hover:text-white hover:bg-zinc-800 font-bold text-lg pointer-events-auto">-</button>
       </div>

@@ -9,6 +9,13 @@ import LotInventoryDataGrid from '@/components/dispatch/LotInventoryDataGrid';
 
 export default function DispatchView() {
   const [activeView, setActiveView] = useState<'operations' | 'inventory'>('operations');
+  const [mapCenter, setMapCenter] = useState<[number, number] | undefined>(undefined);
+  const [mapZoom, setMapZoom] = useState<number | undefined>(undefined);
+
+  const handleLocationSelect = (lng: number, lat: number) => {
+    setMapCenter([lng, lat]);
+    setMapZoom(15);
+  };
 
   return (
     <div className="flex flex-col h-screen w-full bg-zinc-950 overflow-hidden font-sans">
@@ -50,10 +57,20 @@ export default function DispatchView() {
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden relative">
         {activeView === 'operations' ? (
-          <div className="flex h-full w-full">
-            <ActiveStatusBoard />
-            <FleetMapMock />
-            <ExceptionTriageQueue />
+          <div className="relative h-full w-full">
+            {/* Map is underneath everything and takes full width/height */}
+            <div className="absolute inset-0 z-0">
+              <FleetMapMock center={mapCenter} zoom={mapZoom} />
+            </div>
+            
+            {/* Sidebars float on top */}
+            <div className="absolute inset-y-0 left-0 z-10 h-full flex">
+              <ActiveStatusBoard onJobClick={handleLocationSelect} />
+            </div>
+            
+            <div className="absolute inset-y-0 right-0 z-10 h-full flex">
+              <ExceptionTriageQueue onExceptionClick={handleLocationSelect} />
+            </div>
           </div>
         ) : (
           <div className="h-full w-full p-4 bg-zinc-950">

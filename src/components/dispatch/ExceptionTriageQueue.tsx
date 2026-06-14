@@ -12,10 +12,12 @@ const MOCK_EXCEPTIONS = [
     title: 'ETA Exceeded: +15 mins',
     details: 'Driver stuck in amphitheater traffic. Status un-updated.',
     duration: 900, // 15 mins in seconds
+    lng: -84.3879,
+    lat: 33.7012
   }
 ];
 
-export default function ExceptionTriageQueue() {
+export default function ExceptionTriageQueue({ onExceptionClick }: { onExceptionClick?: (lng: number, lat: number) => void }) {
   const [nudgedDrivers, setNudgedDrivers] = useState<string[]>([]);
   
   const handleNudge = (id: string) => {
@@ -66,7 +68,8 @@ export default function ExceptionTriageQueue() {
         {MOCK_EXCEPTIONS.map((ex) => (
           <div 
             key={ex.id}
-            className={`rounded-lg border p-3 shadow-lg relative overflow-hidden transition-all ${
+            onClick={() => onExceptionClick && onExceptionClick(ex.lng, ex.lat)}
+            className={`cursor-pointer rounded-lg border p-3 shadow-lg relative overflow-hidden transition-all hover:brightness-110 ${
               ex.type === 'critical' 
                 ? 'bg-red-950/10 border-red-500/50 shadow-[0_0_15px_-3px_rgba(239,68,68,0.15)]' 
                 : 'bg-amber-950/10 border-amber-500/50'
